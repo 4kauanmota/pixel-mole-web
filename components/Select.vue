@@ -4,7 +4,7 @@ import * as icons from "lucide-vue-next";
 
 const props = defineProps<{
   modelValue: string;
-  options: { label: string; value: string }[];
+  options: string[];
 }>();
 const emit = defineEmits(["update:modelValue"]);
 
@@ -45,7 +45,7 @@ function select(value: string) {
         @click="open = !open"
       >
         <span class="text-sm select-none flex items-center gap-1">
-          {{ options.find((o) => o.value === modelValue)?.label }}
+          {{ toLabel(options.find((o) => o === modelValue) as string) }}
           <component
             :is="icons['ChevronDown']"
             :size="16"
@@ -62,24 +62,22 @@ function select(value: string) {
         class="absolute top-full right-0 min-w-max mt-1 z-50 rounded-xl overflow-hidden border border-gray-700 bg-[#1a1a1c]"
       >
         <div
-          v-for="opt in options"
-          :key="opt.value"
+          v-for="option in options"
+          :key="option"
           class="flex items-center gap-3 px-4 py-2 cursor-pointer transition-colors"
           :class="
-            modelValue === opt.value
+            modelValue === option
               ? 'bg-pm-yellow hover:opacity-90'
               : 'hover:bg-[#2a2a2c]'
           "
-          @click="select(opt.value)"
+          @click="select(option)"
         >
           <span
             :class="
-              modelValue === opt.value
-                ? 'text-pm-dark font-medium'
-                : 'text-white'
+              modelValue === option ? 'text-pm-dark font-medium' : 'text-white'
             "
           >
-            {{ opt.label }}
+            {{ toLabel(option) }}
           </span>
         </div>
       </div>

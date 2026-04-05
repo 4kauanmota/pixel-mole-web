@@ -1,22 +1,20 @@
 <script setup lang="ts">
-import type { GameType, Tag } from "~/data/games";
+import type { Game, Tag, Type } from "~/types/game";
 
 const props = defineProps<{
-  title: string;
-  image: string;
-  description: string;
-  tags: Tag[] | GameType[];
-  type: GameType;
+  game: Game;
 }>();
 
 const hovered = ref(false);
+
+console.log("Rendering Card for game:", props.game);
 </script>
 
 <template>
   <NuxtLink
     :to="
-      type.value === 'coming_soon'
-        ? `/game/${title.toLowerCase().replace(/\s+/g, '-')}`
+      game.type.name === 'coming_soon'
+        ? `/game/${game.name.toLowerCase().replace(/\s+/g, '-')}`
         : ''
     "
     class="z-50"
@@ -30,28 +28,40 @@ const hovered = ref(false);
       <li class="overflow-hidden rounded-xl border-pm-gray bg-pm-black">
         <div class="h-48 overflow-hidden">
           <img
-            :src="image"
-            :alt="title"
+            :src="game.thumbnail"
+            :alt="game.name"
             class="h-full w-full object-cover transition-transform duration-500"
             :class="{ 'scale-110': hovered }"
           />
         </div>
 
         <div class="flex pl-4 pt-4">
-          <Tag :key="type.value" :tag="type" variant="outlined" class="flex" />
+          <Tag
+            :key="game.type.name"
+            :name="game.type.name"
+            :color="game.type.color"
+            variant="outlined"
+            class="flex"
+          />
         </div>
 
         <div class="py-4 px-5">
           <h1 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">
-            {{ title }}
+            {{ game.name }}
           </h1>
 
           <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-            {{ description }}
+            {{ game.description }}
           </p>
 
           <div class="flex flex-wrap gap-2">
-            <Tag v-for="tag in tags" :key="tag.value" :tag="tag" />
+            <Tag
+              v-for="tag in game.tags"
+              :key="tag.name"
+              :name="tag.name"
+              :color="tag.color"
+              :icon="tag.icon"
+            />
           </div>
         </div>
       </li>

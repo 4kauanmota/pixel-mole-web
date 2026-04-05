@@ -13,4 +13,11 @@ export default defineNuxtConfig({
 
   css: ["@/assets/css/main.css"],
   modules: ["@nuxtjs/tailwindcss", "@formkit/auto-animate/nuxt"],
+
+  runtimeConfig: {
+    public: {
+      supabaseUrl: process.env.SUPABASE_URL,
+      supabaseKey: process.env.SUPABASE_KEY,
+    },
+  },
 });

@@ -4,7 +4,7 @@ import * as icons from "lucide-vue-next";
 
 const props = defineProps<{
   modelValue: string[];
-  options: { label: string; value: string; icon?: string }[];
+  options: { name: string; icon?: string }[];
 }>();
 const emit = defineEmits(["update:modelValue"]);
 
@@ -72,19 +72,19 @@ function toggle(value: string) {
       >
         <div
           v-for="opt in options"
-          :key="opt.value"
+          :key="opt.name"
           class="flex items-center gap-3 px-4 py-2 cursor-pointer transition-colors"
           :class="
-            modelValue.includes(opt.value)
+            modelValue.includes(opt.name)
               ? 'bg-pm-yellow hover:opacity-90'
               : 'hover:bg-[#2a2a2c]'
           "
-          @click="toggle(opt.value)"
+          @click="toggle(opt.name)"
         >
           <span
             class="w-4 h-4 rounded border flex items-center justify-center text-xs"
             :class="
-              modelValue.includes(opt.value)
+              modelValue.includes(opt.name)
                 ? 'bg-pm-dark border-pm-dark text-pm-yellow'
                 : 'border-gray-600 text-transparent'
             "
@@ -96,17 +96,17 @@ function toggle(value: string) {
             :size="16"
             class="shrink-0"
             :class="
-              modelValue.includes(opt.value) ? 'text-pm-dark' : 'text-gray-400'
+              modelValue.includes(opt.name) ? 'text-pm-dark' : 'text-gray-400'
             "
           />
           <span
             :class="
-              modelValue.includes(opt.value)
+              modelValue.includes(opt.name)
                 ? 'text-pm-dark font-medium'
                 : 'text-white'
             "
           >
-            {{ opt.label }}
+            {{ toLabel(opt.name) }}
           </span>
         </div>
       </div>

@@ -1,18 +1,28 @@
 <script setup lang="ts">
-import { GAMES, TAGS, GAME_TYPES, type Tag } from "@/data/games";
+//// Imports
+import { TAGS, GAME_TYPES } from "@/data/games";
+import type { Game, Tag, Type } from "~/types/game";
 import Card from "~/components/Card.vue";
+import { createClient } from "@supabase/supabase-js";
 
+//// Supabase client and state
+const allTypes = ref<Type[]>([]);
+const allTags = ref<Tag[]>([]);
+const allGames = ref<Game[]>([]);
+
+const config: any = useRuntimeConfig();
+const supabase = createClient(
+  config.public.supabaseUrl,
+  config.public.supabaseKey,
+);
+
+//// Filtering logic
 const searchQuery = ref("");
-
 const selectedStatus = ref("all");
 const selectedTags = ref<string[]>([]);
 
-const statusOptions = Object.values(GAME_TYPES);
-
-const tagOptions = Object.values(TAGS);
-
-const filteredGames = computed(() => {
-  return GAMES.filter((game) => {
+const filteredGames = computed((): Game[] => {
+  return allGames.value.filter((game) => {
     const matchesName = game.name
       .toLowerCase()
       .includes(searchQuery.value.toLowerCase());
@@ -23,16 +33,44 @@ const filteredGames = computed(() => {
 
     const matchesStatus =
       selectedStatus.value === "all" ||
-      game.type.value === selectedStatus.value.toLowerCase();
+      game.type.name === selectedStatus.value.toLowerCase();
 
     const matchesTag =
       selectedTags.value.length === 0 ||
       selectedTags.value.every((selected) =>
-        game.tags.some((tag) => tag.value === selected),
+        game.tags.some((tag) => tag.name === selected),
       );
 
     return (matchesName || matchesDescription) && matchesStatus && matchesTag;
   });
+});
+
+//// Fetching data from Supabase
+async function getAllTypes(): Promise<void> {
+  const { data } = await supabase.from("game_types").select();
+
+  allTypes.value = data as Type[];
+}
+
+async function getAllTags(): Promise<void> {
+  const { data } = await supabase.from("tags").select();
+
+  allTags.value = data as Tag[];
+}
+
+async function getAllGames(): Promise<void> {
+  const { data } = await supabase.from("games").select(`
+  *,
+  type:game_types(*),
+  tags:game_tags(tag:tag_id(*))
+  `);
+
+  allGames.value = (data as Game[]).map(mapGame);
+}
+
+//// Lifecycle
+onMounted(() => {
+  Promise.all([getAllTypes(), getAllTags(), getAllGames()]);
 });
 </script>
 
@@ -45,9 +83,12 @@ const filteredGames = computed(() => {
       >
         <SearchBar v-model="searchQuery" />
 
-        <Select v-model="selectedStatus" :options="statusOptions" />
+        <Select
+          v-model="selectedStatus"
+          :options="allTypes.map((type) => type.name)"
+        />
 
-        <MultiSelect v-model="selectedTags" :options="tagOptions" />
+        <MultiSelect v-model="selectedTags" :options="allTags" />
       </div>
 
       <div v-auto-animate>
@@ -63,8 +104,9 @@ const filteredGames = computed(() => {
             @click="selectedTags = selectedTags.filter((t) => t !== tag)"
           >
             <Tag
-              :tag="tagOptions.find((o) => o.value === tag) as Tag"
-              variant="outlined"
+              :name="allTags.find((o) => o.name === tag)?.name || ''"
+              :color="allTags.find((o) => o.name === tag)?.color || ''"
+              :icon="allTags.find((o) => o.name === tag)?.icon || ''"
             />
           </span>
         </div>
@@ -72,15 +114,7 @@ const filteredGames = computed(() => {
 
       <div>
         <CardContainer v-auto-animate>
-          <Card
-            v-for="game in filteredGames"
-            :key="game.name"
-            :title="game.name"
-            :description="game.description"
-            :image="game.image"
-            :tags="game.tags"
-            :type="game.type"
-          />
+          <Card v-for="game in filteredGames" :key="game.name" :game="game" />
         </CardContainer>
       </div>
     </main>

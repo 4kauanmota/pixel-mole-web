@@ -50,7 +50,7 @@ function select(value: string) {
             :is="icons['ChevronDown']"
             :size="16"
             class="transition-transform duration-300"
-            :class="{ 'rotate-[270deg]': !open }"
+            :class="{ 'rotate-270': !open }"
           />
         </span>
       </div>

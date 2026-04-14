@@ -75,6 +75,8 @@ onMounted(() => {
 </script>
 
 <template>
+  <NavBar />
+
   <Container>
     <main>
       <div

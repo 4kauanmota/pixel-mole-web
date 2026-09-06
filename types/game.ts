@@ -13,6 +13,7 @@ export interface Game {
   name: string;
   description: string;
   thumbnail: string;
+  screenshots: string[];
   type: Type;
   tags: Tag[];
 }

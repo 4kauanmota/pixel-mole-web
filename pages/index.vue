@@ -1,7 +1,7 @@
 <script setup lang="ts">
 //// Imports
 import { TAGS, GAME_TYPES } from "@/data/games";
-import type { Game, Tag, Type } from "~/types/game";
+import type { Game, Tag, Type } from "@/types/game";
 import Card from "~/components/Card.vue";
 import { createClient } from "@supabase/supabase-js";
 
@@ -47,7 +47,7 @@ const filteredGames = computed((): Game[] => {
 
 //// Fetching data from Supabase
 async function getAllTypes(): Promise<void> {
-  const { data } = await supabase.from("game_types").select();
+  const { data } = await supabase.from("game_types").select().order("id");
 
   allTypes.value = data as Type[];
 }

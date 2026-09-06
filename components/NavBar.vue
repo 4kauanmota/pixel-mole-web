@@ -9,8 +9,8 @@ const langContainer = ref<HTMLElement>();
 
 //// Language options
 const languages: { code: "pt" | "en"; label: string; flag: string }[] = [
-  { code: "en", label: "English", flag: "🇺🇸" },
   { code: "pt", label: "Português", flag: "🇧🇷" },
+  { code: "en", label: "English", flag: "🇺🇸" },
 ];
 
 const currentLang = computed(() =>

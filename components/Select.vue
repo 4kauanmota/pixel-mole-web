@@ -26,7 +26,7 @@ function select(value: string) {
 </script>
 
 <template>
-  <div class="relative" ref="container">
+  <div class="relative" ref="container" :class="open ? 'z-50' : 'z-10'">
     <Transition name="fade">
       <div
         v-if="open"
@@ -35,11 +35,7 @@ function select(value: string) {
       />
     </Transition>
 
-    <GradientBorder
-      :active="open"
-      class="relative"
-      :class="open ? 'z-50' : 'z-10'"
-    >
+    <GradientBorder :active="open" class="relative z-50 h-full">
       <div
         class="flex flex-col gap-2 p-4 cursor-pointer transition-opacity duration-200 hover:opacity-80"
         @click="open = !open"

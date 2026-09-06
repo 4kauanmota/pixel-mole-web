@@ -38,17 +38,17 @@ export default defineNuxtConfig({
     strategy: "no_prefix",
     locales: [
       {
-        code: "en",
-        name: "English",
-        file: "en.json",
-        domain: process.env.DOMAIN_EN,
-        strategy: "no_prefix",
-      },
-      {
         code: "pt",
         name: "Português",
         file: "pt.json",
         domain: process.env.DOMAIN_PT,
+        strategy: "no_prefix",
+      },
+      {
+        code: "en",
+        name: "English",
+        file: "en.json",
+        domain: process.env.DOMAIN_EN,
       },
     ],
   },

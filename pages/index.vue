@@ -47,25 +47,46 @@ const filteredGames = computed((): Game[] => {
 
 //// Fetching data from Supabase
 async function getAllTypes(): Promise<void> {
-  const { data } = await supabase.from("game_types").select().order("id");
+  const { data, error } = await supabase
+    .from("game_types")
+    .select()
+    .order("id");
 
-  allTypes.value = data as Type[];
+  if (error) console.error("[Supabase] Erro ao buscar game_types:", error);
+
+  allTypes.value = (data as Type[]) ?? [];
 }
 
 async function getAllTags(): Promise<void> {
-  const { data } = await supabase.from("tags").select();
+  const { data, error } = await supabase.from("tags").select();
 
-  allTags.value = data as Tag[];
+  if (error) console.error("[Supabase] Erro ao buscar tags:", error);
+
+  allTags.value = (data as Tag[]) ?? [];
 }
 
 async function getAllGames(): Promise<void> {
-  const { data } = await supabase.from("games").select(`
+  const { data, error } = await supabase.from("games").select(`
   *,
   type:game_types(*),
-  tags:game_tags(tag:tag_id(*))
+  tags:game_tags(tag:tag_id(*)),
+  links:game_links(platform, url)
   `);
 
-  allGames.value = (data as Game[]).map(mapGame);
+  if (error) {
+    // Causas mais comuns pra esse erro especificamente na parte "links":
+    // 1. Não existe uma foreign key entre game_links.game_id e games.id
+    //    (o PostgREST precisa dela pra resolver o embed).
+    // 2. RLS habilitado em game_links sem uma policy de SELECT pra role
+    //    anon/public (tabela nova no Supabase já nasce com RLS ligado e
+    //    sem nenhuma policy, então toda leitura vem vazia/bloqueada).
+    console.error(
+      "[Supabase] Erro ao buscar games (se a mensagem mencionar 'game_links' ou 'relationship', confira a foreign key e as policies de RLS dessa tabela):",
+      error,
+    );
+  }
+
+  allGames.value = ((data as Game[]) ?? []).map(mapGame);
 }
 
 //// Lifecycle

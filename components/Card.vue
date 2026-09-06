@@ -1,15 +1,18 @@
 <script setup lang="ts">
-import type { Game, Tag, Type } from "~/types/game";
+import type { Game } from "~/types/game";
 const props = defineProps<{
   game: Game;
 }>();
 const hovered = ref(false);
 const modalOpen = ref(false);
 
-const isComingSoon = computed(() => props.game.type.name === "coming_soon");
+// Jogos maiores ("coming_soon") vão ganhar uma página própria futuramente.
+// Todos os outros tipos (ex.: game_jam) são jogos menores e usam o
+// GameModal reutilizável para exibir os detalhes.
+const hasOwnPage = computed(() => props.game.type.name === "coming_soon");
 
 function handleClick(e: Event) {
-  if (!isComingSoon.value) {
+  if (!hasOwnPage.value) {
     e.preventDefault();
     modalOpen.value = true;
   }
@@ -19,7 +22,7 @@ function handleClick(e: Event) {
 <template>
   <NuxtLink
     :to="
-      isComingSoon
+      hasOwnPage
         ? `/game/${game.name.toLowerCase().replace(/\s+/g, '-')}`
         : ''
     "
@@ -76,70 +79,5 @@ function handleClick(e: Event) {
     </GradientBorder>
   </NuxtLink>
 
-  <Teleport to="body">
-    <Transition name="fade">
-      <div v-if="modalOpen" class="fixed inset-0 z-50 bg-black overflow-y-auto">
-        <button
-          class="fixed top-4 right-4 text-white bg-white/10 rounded-full w-8 h-8 flex items-center justify-center hover:bg-white/20 transition"
-          @click="modalOpen = false"
-        >
-          ✕
-        </button>
-
-        <div class="max-w-6xl mx-auto px-6 py-16 flex gap-8">
-          <div class="flex flex-col gap-3 w-1/2">
-            <ImageViewer :fancybox-options="{}">
-              <a
-                v-for="(screenshot, i) in game.screenshots"
-                :key="i"
-                :href="screenshot"
-                data-fancybox="gallery"
-              >
-                <img
-                  :src="screenshot"
-                  class="w-full rounded-lg object-cover cursor-zoom-in hover:opacity-80 transition"
-                />
-              </a>
-            </ImageViewer>
-          </div>
-
-          <div class="w-1/2 sticky top-16 self-start">
-            <div class="flex gap-2 mb-4">
-              <Tag
-                :name="game.type.name"
-                :color="game.type.color"
-                variant="outlined"
-              />
-            </div>
-            <h2 class="text-3xl font-bold mb-4 text-white">
-              {{ game.name }}
-            </h2>
-            <p class="text-gray-400 mb-6 leading-relaxed">
-              {{ game.description }}
-            </p>
-            <div class="flex flex-wrap gap-2">
-              <Tag
-                v-for="tag in game.tags"
-                :key="tag.name"
-                :name="tag.name"
-                :color="tag.color"
-                :icon="tag.icon"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </Transition>
-  </Teleport>
+  <GameModal :game="game" v-model:open="modalOpen" />
 </template>
-
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.25s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>

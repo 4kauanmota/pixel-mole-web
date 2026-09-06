@@ -8,6 +8,9 @@ const props = defineProps<{
   color: string;
   icon?: string;
   variant?: "filled" | "outlined";
+  // "sm" é o padrão (usado nos cards da grade). "lg" é usado no modal de
+  // detalhes, onde as tags precisam de mais presença visual/leitura.
+  size?: "sm" | "lg";
 }>();
 
 //// Utils
@@ -31,17 +34,26 @@ const style = computed(() => {
     color: useContrastColor(props.color),
   };
 });
+
+const sizeClasses = computed(() =>
+  props.size === "lg"
+    ? "gap-1.5 px-4 py-1.5 text-sm"
+    : "gap-1 px-3 py-1 text-xs",
+);
+
+const iconSize = computed(() => (props.size === "lg" ? 18 : 16));
 </script>
 
 <template>
   <span
-    class="flex items-center gap-1 px-3 py-1 rounded-full text-xs cursor-pointer"
+    class="flex items-center rounded-full cursor-pointer"
+    :class="sizeClasses"
     :style="style"
   >
     <component
       v-if="icon && icon"
       :is="getIcon(icon)"
-      :size="16"
+      :size="iconSize"
       class="shrink-0"
     />
     {{ toLabel(name) }}

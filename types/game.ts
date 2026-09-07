@@ -10,9 +10,9 @@ export interface Tag {
 }
 
 // Link para uma plataforma externa do jogo (Steam, itch.io, redes sociais, etc).
-// `platform` deve ser um slug (ex: "steam", "itchio", "github", "youtube"...).
-// Sempre que possível, usar o slug correspondente do simple-icons para que o
-// ícone de marca seja resolvido automaticamente pelo GameLinkButton.
+// `platform` é a FONTE DA VERDADE para o ícone exibido (ver LINK_PLATFORMS em
+// data/games.ts) — não a URL. Deve ser o valor exatamente como gravado no
+// Supabase (ex: "steam", "itch.io", "github", "youtube", "linkedin"...).
 export interface GameLink {
   platform: string;
   url: string;

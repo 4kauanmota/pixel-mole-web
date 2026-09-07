@@ -2,6 +2,7 @@
 //// Imports
 import * as icons from "lucide-vue-next";
 import { LINK_PLATFORMS } from "@/data/games";
+import { BRAND_ICONS } from "@/data/brandIcons";
 import type { GameLink } from "~/types/game";
 
 //// Props
@@ -9,20 +10,25 @@ const props = defineProps<{
   link: GameLink;
 }>();
 
+//// Platform key: `platform` é a fonte da verdade (fica exatamente como
+// gravado no Supabase, ex.: "linkedin", "itch.io") — a URL nunca é
+// inspecionada pra decidir o ícone, só é usada como destino do link (href).
+const platformKey = computed(() => props.link.platform);
+
 //// Platform config (falls back gracefully for unmapped slugs)
-const config = computed(() => LINK_PLATFORMS[props.link.platform]);
+const config = computed(() => LINK_PLATFORMS[platformKey.value]);
 const color = computed(() => config.value?.color || "#3a3a3c");
 const label = computed(
-  () => props.link.label || config.value?.label || toLabel(props.link.platform),
+  () => props.link.label || config.value?.label || toLabel(platformKey.value),
 );
 
-// Plataformas "genéricas" (sem logo de marca, ex: site/e-mail) já indicam
-// qual ícone do lucide usar. Para as demais, tentamos carregar o ícone de
-// marca oficial via simple-icons e só usamos o ícone genérico se a imagem
-// falhar (plataforma não encontrada no simple-icons).
-const imageFailed = ref(false);
-const isGeneric = computed(() => !!config.value?.icon);
-const showFallbackIcon = computed(() => isGeneric.value || imageFailed.value);
+// Ícone de marca (SVG embutido localmente, sem depender de nenhum CDN
+// externo — ver data/brandIcons.ts). Prioridade: marca específica > ícone
+// genérico configurado em LINK_PLATFORMS (ex.: e-mail, site) > fallback
+// genérico (Link2). Nunca cai pro fallback quando existe um ícone
+// específico pra essa plataforma.
+const brandIconPath = computed(() => BRAND_ICONS[platformKey.value]);
+const hasBrandIcon = computed(() => !!brandIconPath.value);
 const fallbackIconName = computed(() => config.value?.icon || "Link2");
 
 function getIcon(name: string): any {
@@ -38,25 +44,20 @@ function getIcon(name: string): any {
     class="link-badge group/link relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-transform duration-300 ease-out hover:-translate-y-1 hover:scale-110 active:scale-95"
     :style="{ '--badge-color': color }"
   >
-    <!-- Ícone de marca (simple-icons): crossfade branco -> escuro no hover -->
-    <template v-if="!showFallbackIcon">
-      <img
-        :src="`https://cdn.simpleicons.org/${link.platform}/ffffff`"
-        :alt="label"
-        class="absolute h-5 w-5 opacity-100 transition-opacity duration-300 ease-out group-hover/link:opacity-0"
-        draggable="false"
-        @error="imageFailed = true"
-      />
-      <img
-        :src="`https://cdn.simpleicons.org/${link.platform}/272528`"
-        alt=""
-        aria-hidden="true"
-        class="absolute h-5 w-5 opacity-0 transition-opacity duration-300 ease-out group-hover/link:opacity-100"
-        draggable="false"
-      />
-    </template>
+    <!-- Ícone de marca: mesmo tratamento de cor (branco -> escuro no hover)
+         do ícone genérico abaixo, só que com o path SVG oficial da
+         plataforma em vez de um ícone do lucide. -->
+    <svg
+      v-if="hasBrandIcon"
+      viewBox="0 0 24 24"
+      class="h-5 w-5 fill-current text-white transition-colors duration-300 ease-out group-hover/link:text-pm-dark"
+      aria-hidden="true"
+    >
+      <path :d="brandIconPath" />
+    </svg>
 
-    <!-- Ícone genérico (lucide): só muda a cor no hover -->
+    <!-- Ícone genérico (lucide): usado pra plataformas sem ícone de marca
+         (ex.: site/e-mail) ou realmente desconhecidas. -->
     <component
       :is="getIcon(fallbackIconName)"
       v-else

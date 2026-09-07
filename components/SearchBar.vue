@@ -27,7 +27,8 @@ const focused = ref(false);
         @focus="focused = true"
         @blur="focused = false"
         placeholder="Buscar jogos..."
-        class="h-full w-full pl-4"
+        class="h-full w-full"
+        :class="FILTER_CONTROL_CLASSES"
       />
     </GradientBorder>
   </div>

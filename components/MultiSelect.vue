@@ -46,15 +46,16 @@ function toggle(value: string) {
 
     <GradientBorder :active="open" class="relative z-50 h-full">
       <div
-        class="flex flex-col gap-2 p-4 cursor-pointer transition-opacity duration-200 hover:opacity-80 active:scale-80"
+        class="flex min-w-0 cursor-pointer items-center transition-opacity duration-200 hover:opacity-80 active:scale-80"
+        :class="FILTER_CONTROL_CLASSES"
         @click="open = !open"
       >
-        <span class="text-sm select-none flex items-center gap-1">
+        <span class="flex min-w-0 items-center gap-1 select-none">
           Selecionar tags
           <component
             :is="getIcon('ChevronDown')"
             :size="16"
-            class="transition-transform duration-300"
+            class="shrink-0 transition-transform duration-300"
             :class="{ 'rotate-270': !open }"
           />
         </span>
@@ -69,7 +70,7 @@ function toggle(value: string) {
         <div
           v-for="opt in options"
           :key="opt.name"
-          class="flex items-center gap-3 px-4 py-2 cursor-pointer transition-colors"
+          class="flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors"
           :class="
             modelValue.includes(opt.name)
               ? 'bg-pm-yellow hover:opacity-90'

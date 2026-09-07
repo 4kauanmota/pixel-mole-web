@@ -1,5 +1,7 @@
 <script setup lang="ts">
 //// Imports
+import * as icons from "lucide-vue-next";
+
 const { locale, t } = useI18n();
 const switchLocalePath = useSwitchLocalePath();
 
@@ -36,61 +38,71 @@ onMounted(() => document.addEventListener("click", handleClickOutside));
 onUnmounted(() => document.removeEventListener("click", handleClickOutside));
 
 //// Navigation links
-const links = [{ label: $t("navbar.games"), to: "/" }];
+const links = [
+  { label: $t("navbar.games"), to: "/" },
+  { label: $t("navbar.members"), to: "/members" },
+];
 </script>
 
 <template>
   <nav
-    class="sticky top-0 z-50 flex items-center justify-between px-4 h-16 bg-pm-black"
+    class="sticky top-0 z-50 flex h-20 items-center justify-between bg-pm-black px-4 sm:h-24 sm:px-6 lg:px-10"
   >
-    <NuxtLink to="/" class="h-full flex items-center gap-2">
+    <NuxtLink to="/" class="flex h-full items-center gap-2 py-3 sm:py-4">
       <img
         src="/img/logo.png"
         alt="Pixel Mole Logo"
-        class="h-full object-cover py-2"
+        class="h-full w-auto object-contain"
       />
     </NuxtLink>
 
-    <div class="flex items-center gap-1">
+    <div class="flex items-center gap-1 sm:gap-2">
       <NuxtLink
         v-for="link in links"
         :key="link.to"
         :to="link.to"
-        class="text-sm px-3 py-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-[#2a2a2c] transition-colors"
+        class="rounded-lg px-3 py-2 text-base text-gray-500 transition-colors hover:bg-[#2a2a2c] hover:text-white sm:px-4 sm:py-2.5 sm:text-lg"
         active-class="text-pm-yellow"
       >
         {{ link.label }}
       </NuxtLink>
     </div>
 
-    <div class="relative" ref="langContainer">
-      <GradientBorder :active="langOpen" radius="10px">
-        <button
-          class="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-400 hover:text-white transition-colors bg-pm-yellow"
+    <!-- Seletor de idioma: mesmo padrão visual dos filtros da página
+         principal (SearchBar/Select/MultiSelect) — GradientBorder +
+         FILTER_CONTROL_CLASSES — em vez de um botão amarelo isolado. -->
+    <div class="relative" ref="langContainer" :class="langOpen ? 'z-50' : 'z-10'">
+      <GradientBorder :active="langOpen" class="relative z-50 h-full">
+        <div
+          class="flex min-w-0 cursor-pointer items-center transition-opacity duration-200 hover:opacity-80"
+          :class="FILTER_CONTROL_CLASSES"
           @click="langOpen = !langOpen"
         >
-          <span>{{ currentLang?.flag }}</span>
-          <span class="uppercase">{{ currentLang?.code }}</span>
-          <span
-            class="text-xs opacity-50 transition-transform duration-200"
-            :class="{ 'rotate-180': langOpen }"
-            >▼</span
-          >
-        </button>
+          <span class="flex items-center gap-1.5 select-none">
+            <span>{{ currentLang?.flag }}</span>
+            <span class="uppercase">{{ currentLang?.code }}</span>
+            <component
+              :is="icons['ChevronDown']"
+              :size="16"
+              class="shrink-0 transition-transform duration-300"
+              :class="{ 'rotate-270': !langOpen }"
+            />
+          </span>
+        </div>
       </GradientBorder>
 
       <Transition name="dropdown">
         <div
           v-if="langOpen"
-          class="absolute top-full right-0 mt-1 min-w-max rounded-xl overflow-hidden border border-[#3a3a3c] bg-[#1a1a1c] z-50"
+          class="absolute right-0 top-full z-50 mt-1 min-w-max overflow-hidden rounded-xl border border-gray-700 bg-[#1a1a1c]"
         >
           <button
             v-for="lang in languages"
             :key="lang.code"
-            class="flex items-center gap-3 w-full px-4 py-2 text-sm transition-colors"
+            class="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"
             :class="
               locale === lang.code
-                ? 'bg-pm-yellow text-pm-dark font-medium'
+                ? 'bg-pm-yellow font-medium text-pm-dark'
                 : 'text-gray-400 hover:bg-[#2a2a2c] hover:text-white'
             "
             @click="

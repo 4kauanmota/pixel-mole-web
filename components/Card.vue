@@ -1,7 +1,15 @@
 <script setup lang="ts">
+import * as icons from "lucide-vue-next";
 import type { Game } from "~/types/game";
 const props = defineProps<{
   game: Game;
+  // Cargo específico que um membro exerceu *neste* jogo (ex.: "Programador").
+  // Passado apenas pela página de membro (/members/[nick]), que reaproveita
+  // este MESMO card (sem nenhuma outra alteração) pra listar os jogos em
+  // que a pessoa atuou. É só uma informação COMPLEMENTAR — o card continua
+  // sendo o card de jogo de sempre, com todas as informações normais
+  // (thumbnail, tipo, descrição, tags de gênero) intactas.
+  roleLabel?: string;
 }>();
 const hovered = ref(false);
 const modalOpen = ref(false);
@@ -26,46 +34,76 @@ function handleClick(e: Event) {
         ? `/game/${game.name.toLowerCase().replace(/\s+/g, '-')}`
         : ''
     "
-    class="z-50"
+    class="z-50 block h-full"
     @click="handleClick"
   >
     <GradientBorder
       @mouseenter="hovered = true"
       @mouseleave="hovered = false"
       :active="hovered"
-      class="shadow-md transition-all duration-300 hover:-translate-y-2 hover:shadow-xl w-full h-full cursor-pointer"
+      class="h-full w-full cursor-pointer shadow-md transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
     >
       <li
-        class="overflow-hidden rounded-xl border-pm-gray bg-pm-black flex flex-col h-full"
+        class="flex h-full flex-col overflow-hidden rounded-xl border-pm-gray bg-pm-black"
       >
-        <div class="h-48 overflow-hidden">
+        <!-- Thumbnail: proporção 16/10, com o tipo do jogo sobreposto como
+             selo (mesmo padrão "outlined" usado no GameModal para o tipo),
+             liberando espaço vertical pro conteúdo abaixo. -->
+        <div class="relative aspect-[16/10] w-full overflow-hidden">
           <img
             :src="game.thumbnail"
             :alt="game.name"
             class="h-full w-full object-cover transition-transform duration-500"
             :class="{ 'scale-110': hovered }"
           />
-        </div>
-        <div class="flex pl-4 pt-4">
+          <div
+            class="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/55 via-black/0 to-black/0"
+          />
           <Tag
             :key="game.type.name"
             :name="game.type.name"
             :color="game.type.color"
             variant="outlined"
-            class="flex"
+            class="absolute left-3 top-3 !bg-pm-black/70 backdrop-blur-sm"
           />
         </div>
 
-        <div class="py-4 px-5 flex flex-col flex-1">
-          <h1 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">
+        <div class="flex flex-1 flex-col gap-3 p-4 sm:p-5">
+          <h1 class="line-clamp-1 text-lg font-bold text-white sm:text-xl">
             {{ game.name }}
           </h1>
 
-          <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+          <p class="line-clamp-2 text-sm leading-relaxed text-gray-400">
             {{ game.description }}
           </p>
 
-          <div class="flex flex-wrap gap-2 mt-auto">
+          <!-- Cargo do membro NESTE jogo (só na página de um membro, via
+               `roleLabel`): vem logo depois da descrição, em fluxo normal
+               (sem forçar espaço) — informação diferente das tags de
+               gênero, por isso discreta (texto, não outra Tag colorida),
+               com um ícone de pessoa. -->
+          <div
+            v-if="roleLabel"
+            class="flex items-center gap-1.5 text-sm text-gray-400"
+          >
+            <component
+              :is="icons['User']"
+              :size="14"
+              class="shrink-0 text-pm-yellow"
+            />
+            <span class="truncate">{{ roleLabel }}</span>
+          </div>
+
+          <!-- Tags do jogo (gênero/tema): mesmo padrão "filled" (cor sólida
+               de fundo) de sempre. Ancoradas na base do card (`mt-auto`),
+               com uma linha divisória — mesmo comportamento que o card já
+               tinha antes de existir `roleLabel`, só que agora o cargo do
+               membro (quando presente) fica entre a descrição e essa
+               âncora, em vez de disputar o mesmo espaço das tags. -->
+          <div
+            v-if="game.tags.length"
+            class="mt-auto flex flex-wrap gap-1.5 border-t border-white/10 pt-3"
+          >
             <Tag
               v-for="tag in game.tags"
               :key="tag.name"

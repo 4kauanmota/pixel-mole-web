@@ -32,7 +32,7 @@ export default defineNuxtConfig({
   },
 
   i18n: {
-    defaultLocale: "en",
+    defaultLocale: "pt",
     differentDomains: true,
     detectBrowserLanguage: false,
     strategy: "no_prefix",

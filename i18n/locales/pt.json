@@ -1,5 +1,21 @@
 {
   "navbar": {
-    "games": "Jogos"
+    "games": "Jogos",
+    "members": "Equipe"
+  },
+  "loading": {
+    "games": "Carregando jogos...",
+    "members": "Carregando equipe...",
+    "member": "Carregando membro..."
+  },
+  "members": {
+    "title": "Equipe do Estúdio",
+    "intro": "As pessoas por trás dos jogos da Pixel Mole.",
+    "count": "{count} membros na equipe",
+    "about": "Sobre",
+    "socials": "Redes sociais",
+    "games": "Jogos",
+    "noGames": "Ainda sem jogos creditados.",
+    "notFound": "Membro não encontrado."
   }
 }

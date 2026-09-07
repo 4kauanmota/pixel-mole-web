@@ -28,25 +28,30 @@ const supabase = createClient(
 
 //// Fetching data from Supabase
 async function getMember(): Promise<void> {
-  const { data, error } = await supabase
-    .from("members")
-    .select(
-      `
+  // A query do membro só precisa saber QUAIS jogos e com qual cargo
+  // (role_in_game) — o game:games(id) aqui é só pra identificar o jogo, não
+  // pra buscar os dados dele. Os dados completos (thumbnail, tags, links,
+  // créditos etc.) e a ORDEM de exibição vêm de fetchAllGames (mesma
+  // função/query da página de Games), buscados em paralelo abaixo — assim
+  // os jogos deste membro saem sempre com os mesmos dados e na mesma ordem
+  // da página de Games, por construção.
+  const [{ data, error }, allGames] = await Promise.all([
+    supabase
+      .from("members")
+      .select(
+        `
       *,
       socials:member_socials(platform, url),
       game_members(
         role_in_game,
-        game:games(
-          *,
-          type:game_types(*),
-          tags:game_tags(tag:tag_id(*)),
-          links:game_links(platform, url)
-        )
+        game:games(id)
       )
       `,
-    )
-    .eq("nick", nick)
-    .maybeSingle();
+      )
+      .eq("nick", nick)
+      .maybeSingle(),
+    fetchAllGames(supabase),
+  ]);
 
   if (error) {
     // Causas mais comuns pra esse erro especificamente nos embeds
@@ -73,7 +78,7 @@ async function getMember(): Promise<void> {
     return;
   }
 
-  member.value = mapMember(data);
+  member.value = mapMember(data, allGames);
 }
 
 //// Lifecycle

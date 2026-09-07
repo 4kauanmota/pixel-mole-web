@@ -70,29 +70,14 @@ async function getAllTags(): Promise<void> {
   allTags.value = (data as Tag[]) ?? [];
 }
 
+// Query/mapeamento completos vivem em fetchAllGames (utils/games.ts) —
+// extraídos daqui pra serem reaproveitados por qualquer outro lugar que
+// precise dos jogos na MESMA ordem desta página (ver
+// pages/members/[nick].vue), em vez de duplicar a lógica. Nenhuma mudança
+// de comportamento: mesma query, mesmo mapeamento, mesmo resultado de
+// antes — só extraído pra função própria.
 async function getAllGames(): Promise<void> {
-  const { data, error } = await supabase.from("games").select(`
-  *,
-  type:game_types(*),
-  tags:game_tags(tag:tag_id(*)),
-  links:game_links(platform, url),
-  members:game_members(role_in_game, member:members(id, name, nick))
-  `);
-
-  if (error) {
-    // Causas mais comuns pra esse erro especificamente na parte
-    // "links"/"members": não existe uma foreign key entre
-    // game_links/game_members e games (o PostgREST precisa dela pra
-    // resolver o embed), ou RLS habilitado nessas tabelas sem uma policy de
-    // SELECT pra role anon/public (tabela nova no Supabase já nasce com RLS
-    // ligado e sem nenhuma policy, então toda leitura vem vazia/bloqueada).
-    console.error(
-      "[Supabase] Erro ao buscar games (se a mensagem mencionar 'game_links', 'game_members' ou 'relationship', confira a foreign key e as policies de RLS dessas tabelas):",
-      error,
-    );
-  }
-
-  allGames.value = ((data as Game[]) ?? []).map(mapGame);
+  allGames.value = await fetchAllGames(supabase);
 }
 
 //// Lifecycle

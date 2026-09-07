@@ -38,7 +38,26 @@ export function mapMemberSummary(api: any): MemberSummary {
 }
 
 // Versão completa usada na página individual do membro (/members/[nick]).
-export function mapMember(api: any): Member {
+//
+// `allGames` é o resultado de fetchAllGames (utils/games.ts) — a MESMA
+// função/query usada pela página de Games para listar todos os jogos.
+// Em vez de tentar reproduzir/adivinhar o critério de ordenação da página
+// de Games (que nem sequer define um .order() explícito — a ordem "real"
+// ali é só o retorno natural da query), simplesmente filtramos essa mesma
+// lista, já na ordem exata dela, para os jogos deste membro. Isso garante
+// por construção que a ordem dos jogos aqui é idêntica à da página de
+// Games, sem duplicar nenhuma lógica de ordenação.
+export function mapMember(api: any, allGames: Game[]): Member {
+  // Cargo que o membro exerceu em cada jogo (role_in_game), indexado pelo
+  // id do jogo — só isso é obtido da própria linha de `game_members`; os
+  // dados completos do jogo (thumbnail, tags, links, créditos etc.) vêm de
+  // `allGames`, garantindo que sejam exatamente os mesmos exibidos na
+  // página de Games para aquele jogo.
+  const roleByGameId = new Map<number, string>();
+  for (const gm of api.game_members ?? []) {
+    if (gm.game) roleByGameId.set(gm.game.id, gm.role_in_game);
+  }
+
   return {
     id: api.id,
     name: api.name,
@@ -48,13 +67,11 @@ export function mapMember(api: any): Member {
     // `member_socials` já retorna { platform, url } diretamente, igual
     // `game_links` — mas também pode vir ausente/null, daí o fallback.
     socials: api.socials ?? [],
-    // `game_members` é a tabela de junção membro<->jogo: cada linha traz o
-    // cargo que a pessoa exerceu *naquele* jogo (role_in_game) junto do
-    // jogo em si, já no mesmo formato usado em todo o resto do site
-    // (mapGame), pra poder reaproveitar o <Card> sem adaptação nenhuma.
-    games: (api.game_members ?? []).map((gm: any) => ({
-      ...mapGame(gm.game),
-      roleInGame: gm.role_in_game,
-    })),
+    games: allGames
+      .filter((game) => roleByGameId.has(game.id))
+      .map((game) => ({
+        ...game,
+        roleInGame: roleByGameId.get(game.id)!,
+      })),
   };
 }

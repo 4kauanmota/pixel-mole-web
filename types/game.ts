@@ -32,6 +32,11 @@ export interface GameMember {
 }
 
 export interface Game {
+  // Sempre presente (toda query de jogos usa "*", que inclui a coluna),
+  // mas só ficou explícito aqui a partir de quando passou a ser
+  // efetivamente usado em código (filtrar/ordenar jogos por id — ver
+  // fetchAllGames em utils/games.ts e mapMember em utils/mappers.ts).
+  id: number;
   name: string;
   description: string;
   thumbnail: string;
@@ -42,6 +47,6 @@ export interface Game {
   // está preparado para recebê-lo assim que o campo for criado.
   links?: GameLink[];
   // Opcional pelo mesmo motivo: nem toda query que busca jogos seleciona
-  // esse relacionamento (ver getAllGames em pages/index.vue).
+  // esse relacionamento (ver fetchAllGames em utils/games.ts).
   members?: GameMember[];
 }

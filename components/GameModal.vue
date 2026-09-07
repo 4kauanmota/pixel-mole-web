@@ -53,6 +53,7 @@ const visibleLinks = computed(
   () => props.game.links?.filter((link) => !!link.url) ?? [],
 );
 const hasLinks = computed(() => !!visibleLinks.value.length);
+const hasCredits = computed(() => !!props.game.members?.length);
 const hasInfo = computed(
   () => hasTags.value || hasDescription.value || hasLinks.value,
 );
@@ -171,6 +172,16 @@ const hasInfo = computed(
                     </div>
                   </div>
                 </div>
+              </div>
+
+              <!-- Equipe: seção nova, sempre no fim do modal (abaixo da
+                   galeria e das redes sociais), sem alterar nada do layout
+                   em colunas acima — só aproveita o espaço abaixo dele. -->
+              <div
+                v-if="hasCredits"
+                class="mt-10 border-t border-pm-gray/60 pt-8"
+              >
+                <GameCredits :members="game.members ?? []" />
               </div>
             </div>
           </div>

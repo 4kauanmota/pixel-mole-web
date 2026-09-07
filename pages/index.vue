@@ -75,18 +75,19 @@ async function getAllGames(): Promise<void> {
   *,
   type:game_types(*),
   tags:game_tags(tag:tag_id(*)),
-  links:game_links(platform, url)
+  links:game_links(platform, url),
+  members:game_members(role_in_game, member:members(id, name, nick))
   `);
 
   if (error) {
-    // Causas mais comuns pra esse erro especificamente na parte "links":
-    // 1. Não existe uma foreign key entre game_links.game_id e games.id
-    //    (o PostgREST precisa dela pra resolver o embed).
-    // 2. RLS habilitado em game_links sem uma policy de SELECT pra role
-    //    anon/public (tabela nova no Supabase já nasce com RLS ligado e
-    //    sem nenhuma policy, então toda leitura vem vazia/bloqueada).
+    // Causas mais comuns pra esse erro especificamente na parte
+    // "links"/"members": não existe uma foreign key entre
+    // game_links/game_members e games (o PostgREST precisa dela pra
+    // resolver o embed), ou RLS habilitado nessas tabelas sem uma policy de
+    // SELECT pra role anon/public (tabela nova no Supabase já nasce com RLS
+    // ligado e sem nenhuma policy, então toda leitura vem vazia/bloqueada).
     console.error(
-      "[Supabase] Erro ao buscar games (se a mensagem mencionar 'game_links' ou 'relationship', confira a foreign key e as policies de RLS dessa tabela):",
+      "[Supabase] Erro ao buscar games (se a mensagem mencionar 'game_links', 'game_members' ou 'relationship', confira a foreign key e as policies de RLS dessas tabelas):",
       error,
     );
   }

@@ -9,6 +9,19 @@ export function mapGame(api: any): Game {
     // precisa de "unwrap" como as tags), mas pode vir ausente/null caso a
     // query não peça o relacionamento — por isso o fallback para [].
     links: api.links ?? [],
+    // `game_members` é a tabela de junção jogo<->membro (mesma usada em
+    // mapMember, só que na direção oposta): cada linha traz o cargo que a
+    // pessoa exerceu NESTE jogo (role_in_game) junto dos dados básicos dela.
+    // O filter descarta linhas sem o relacionamento de membro resolvido
+    // (não deveria acontecer com a foreign key certa, mas evita quebrar a
+    // seção de créditos por causa de uma linha órfã).
+    members: (api.members ?? [])
+      .filter((gm: any) => gm.member)
+      .map((gm: any) => ({
+        nick: gm.member.nick,
+        name: gm.member.name,
+        roleInGame: gm.role_in_game,
+      })),
   };
 }
 

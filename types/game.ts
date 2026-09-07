@@ -19,6 +19,18 @@ export interface GameLink {
   label?: string;
 }
 
+// Membro do estúdio que participou do desenvolvimento deste jogo, com o
+// cargo específico exercido *neste* jogo (role_in_game) — mesma ideia do
+// MemberGame (types/member.ts), só que na direção oposta: aqui é "quem
+// trabalhou neste jogo", lá é "em quais jogos esta pessoa trabalhou". Só
+// nick/name (sem foto/bio/redes — a seção de créditos do GameModal não
+// precisa de mais que isso).
+export interface GameMember {
+  nick: string;
+  name: string;
+  roleInGame: string;
+}
+
 export interface Game {
   name: string;
   description: string;
@@ -29,4 +41,7 @@ export interface Game {
   // Opcional: ainda não existe no Supabase, mas o componente de modal já
   // está preparado para recebê-lo assim que o campo for criado.
   links?: GameLink[];
+  // Opcional pelo mesmo motivo: nem toda query que busca jogos seleciona
+  // esse relacionamento (ver getAllGames em pages/index.vue).
+  members?: GameMember[];
 }

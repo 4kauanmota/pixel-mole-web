@@ -174,9 +174,11 @@ onMounted(async () => {
 
           <!-- Sobre: dentro do mesmo container, com uma linha divisória
                discreta (mesmo padrão usado entre as tags e a descrição no
-               Card.vue) em vez de outra caixa própria. Largura limitada
-               (max-w) pra não esticar um texto curto por toda a largura do
-               container — se adapta ao conteúdo, não o contrário. -->
+               Card.vue) em vez de outra caixa própria. Sem max-w: o texto
+               ocupa toda a largura livre do container (que já tem seu
+               próprio limite via <Container> na página), em vez de ficar
+               preso numa coluna estreita com espaço vazio sobrando ao
+               lado. -->
           <div
             v-if="member.description"
             class="mt-8 border-t border-white/10 pt-6"
@@ -186,9 +188,7 @@ onMounted(async () => {
             >
               {{ $t("members.about") }}
             </h2>
-            <p
-              class="max-w-2xl whitespace-pre-line leading-relaxed text-gray-400"
-            >
+            <p class="whitespace-pre-line leading-relaxed text-gray-400">
               {{ member.description }}
             </p>
           </div>

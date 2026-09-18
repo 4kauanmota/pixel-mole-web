@@ -89,6 +89,26 @@ onMounted(async () => {
     isLoading.value = false;
   }
 });
+
+// `default_role` pode trazer 1 ou 2 cargos separados por vírgula — mesma
+// lógica/cores do card da listagem (ver MemberCard.vue e
+// SECONDARY_ROLE_COLOR em utils/formatters.ts), só que em tamanho "lg"
+// (mesmo padrão que a tag única já usava aqui).
+const memberRoles = computed(() => splitRoles(member.value?.defaultRole ?? ""));
+
+// Resumo das atuações do membro nos jogos do estúdio: agrupa
+// member.games[].roleInGame, contando quantas vezes cada cargo se repete
+// (ex.: "Programador · 3x") em vez de listar cada jogo separadamente.
+// Ordenado do cargo mais recorrente pro menos recorrente.
+const roleSummary = computed(() => {
+  const counts = new Map<string, number>();
+  for (const game of member.value?.games ?? []) {
+    counts.set(game.roleInGame, (counts.get(game.roleInGame) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .map(([role, count]) => ({ role, count }))
+    .sort((a, b) => b.count - a.count);
+});
 </script>
 
 <template>
@@ -137,15 +157,31 @@ onMounted(async () => {
                 </h1>
                 <p class="mt-1 text-gray-500">@{{ member.nick }}</p>
 
-                <Tag
-                  v-if="member.defaultRole"
-                  :name="member.defaultRole"
-                  raw
-                  color="var(--pm-yellow)"
-                  variant="outlined"
-                  size="lg"
-                  class="mt-3 inline-flex"
-                />
+                <!-- Cargo(s): mesma tag amarela de sempre, mais uma segunda
+                     tag roxa quando o membro tem 2 cargos (ver splitRoles
+                     em utils/formatters.ts) — mesmo tratamento do card da
+                     listagem (MemberCard.vue). -->
+                <div
+                  v-if="memberRoles.length"
+                  class="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start"
+                >
+                  <Tag
+                    v-if="memberRoles[0]"
+                    :name="memberRoles[0]"
+                    raw
+                    color="var(--pm-yellow)"
+                    variant="outlined"
+                    size="lg"
+                  />
+                  <Tag
+                    v-if="memberRoles[1]"
+                    :name="memberRoles[1]"
+                    raw
+                    :color="SECONDARY_ROLE_COLOR"
+                    variant="filled"
+                    size="lg"
+                  />
+                </div>
               </div>
             </div>
 
@@ -196,6 +232,32 @@ onMounted(async () => {
             <p class="whitespace-pre-line leading-relaxed text-gray-400">
               {{ member.description }}
             </p>
+          </div>
+
+          <!-- Atuações: resumo visual de todas as funções que o membro já
+               exerceu nos jogos do estúdio, agregadas por cargo (ver
+               roleSummary) — mesmo cargo em vários jogos vira "Cargo · Nx"
+               em vez de se repetir. Mesmo padrão de divisória/título dos
+               outros blocos deste container, com as mesmas tags outlined
+               amarelas já usadas pra cargo (não usa a cor roxa, que é
+               exclusiva das tags de cargo GERAL do membro logo acima). -->
+          <div v-if="roleSummary.length" class="mt-8 border-t border-white/10 pt-6">
+            <h2
+              class="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500"
+            >
+              {{ $t("members.roles") }}
+            </h2>
+            <div class="flex flex-wrap gap-2">
+              <Tag
+                v-for="entry in roleSummary"
+                :key="entry.role"
+                :name="`${entry.role} · ${entry.count}x`"
+                raw
+                color="var(--pm-yellow)"
+                variant="outlined"
+                icon="User"
+              />
+            </div>
           </div>
         </div>
 

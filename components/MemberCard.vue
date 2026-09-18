@@ -8,6 +8,20 @@ const props = defineProps<{
 }>();
 
 const hovered = ref(false);
+
+// `default_role` pode trazer 1 ou 2 cargos separados por vírgula — o
+// primeiro sempre vira a tag amarela de sempre; o segundo (se existir) vira
+// a nova tag roxa (ver SECONDARY_ROLE_COLOR).
+const roles = computed(() => splitRoles(props.member.defaultRole));
+
+// Nomes até esse tamanho sempre aparecem por completo — mesmo que precisem
+// quebrar em 2 linhas (ex.: "Liana Toledo", com 12 caracteres) — em vez de
+// serem cortados por pouco com reticências. Só nomes REALMENTE longos
+// (acima do limite) continuam sendo truncados numa linha só, como antes.
+const NAME_TRUNCATE_THRESHOLD = 16;
+const nameFits = computed(
+  () => props.member.name.length <= NAME_TRUNCATE_THRESHOLD,
+);
 </script>
 
 <template>
@@ -46,7 +60,14 @@ const hovered = ref(false);
              individual do membro) — cada um com um peso visual diferente,
              sem competir entre si. -->
         <div class="min-w-0 flex-1">
-          <h1 class="line-clamp-1 text-xl font-bold text-white sm:text-2xl">
+          <!-- Truncamento com exceção: nomes curtos/médios (ver
+               NAME_TRUNCATE_THRESHOLD) usam break-words e podem ocupar 2
+               linhas em vez de serem cortados; só nomes muito longos mantêm
+               o line-clamp-1 de sempre. -->
+          <h1
+            class="text-xl font-bold text-white sm:text-2xl"
+            :class="nameFits ? 'break-words' : 'line-clamp-1'"
+          >
             {{ member.name }}
           </h1>
 
@@ -54,14 +75,28 @@ const hovered = ref(false);
             @{{ member.nick }}
           </p>
 
-          <Tag
-            v-if="member.defaultRole"
-            :name="member.defaultRole"
-            raw
-            color="var(--pm-yellow)"
-            variant="outlined"
-            class="mt-2 inline-flex max-w-full"
-          />
+          <!-- Cargo(s): a tag amarela de sempre, mais uma segunda tag roxa
+               quando o membro tem 2 cargos (ver splitRoles) — visualmente
+               distintas (outlined vs. preenchida) mas ambas cores da
+               identidade do estúdio. -->
+          <div v-if="roles.length" class="mt-2 flex flex-wrap gap-1.5">
+            <Tag
+              v-if="roles[0]"
+              :name="roles[0]"
+              raw
+              color="var(--pm-yellow)"
+              variant="outlined"
+              class="max-w-full"
+            />
+            <Tag
+              v-if="roles[1]"
+              :name="roles[1]"
+              raw
+              :color="SECONDARY_ROLE_COLOR"
+              variant="filled"
+              class="max-w-full"
+            />
+          </div>
         </div>
       </li>
     </GradientBorder>

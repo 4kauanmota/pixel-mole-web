@@ -23,3 +23,24 @@ export function getInitials(name: string): string {
 
   return (first + last).toUpperCase();
 }
+
+// `default_role` de um membro pode conter mais de um cargo, separados por
+// vírgula (ex.: "Game Designer, Programador") — usado tanto no card da
+// listagem (MemberCard.vue) quanto no cabeçalho da página individual
+// (pages/members/[nick].vue) pra decidir quantas tags de cargo mostrar (1
+// ou 2) e o texto de cada uma. Um único cargo (sem vírgula) continua
+// funcionando exatamente como antes, sem nenhuma mudança visual.
+export function splitRoles(defaultRole: string): string[] {
+  if (!defaultRole) return [];
+
+  return defaultRole
+    .split(",")
+    .map((role) => role.trim())
+    .filter(Boolean);
+}
+
+// Cor da segunda tag de cargo (quando o membro tem 2 cargos) — mesmo tom de
+// --pm-purple (assets/css/main.css). Precisa ser o hex literal (não
+// "var(--pm-purple)") porque Tag.vue calcula a cor do TEXTO a partir dele
+// via useContrastColor, que só entende "#rrggbb".
+export const SECONDARY_ROLE_COLOR = "#4D1184";

@@ -8,8 +8,14 @@ import type { GameMember } from "~/types/game";
 // informações do GameModal (junto do painel "Disponível em", no fim), sem
 // competir visualmente com nome/descrição/imagem/tags do jogo.
 const props = defineProps<{
-  members: GameMember[];
+  // Opcional/nullable de propósito: hoje o único uso real (GameModal.vue)
+  // já passa `game.members ?? []`, mas este componente não deveria
+  // depender disso — se algum outro lugar passar `undefined`/`null` no
+  // futuro, ele continua funcionando (lista vazia) em vez de quebrar.
+  members?: GameMember[] | null;
 }>();
+
+const membersList = computed(() => props.members ?? []);
 
 //// Agrupamento por função (role_in_game): dinâmico, na ordem em que os
 // membros chegam da API — nenhuma função é assumida/fixa de antemão, só as
@@ -20,7 +26,7 @@ const groupedMembers = computed(() => {
   const groups: { role: string; members: GameMember[] }[] = [];
   const byRole = new Map<string, GameMember[]>();
 
-  for (const member of props.members) {
+  for (const member of membersList.value) {
     let list = byRole.get(member.roleInGame);
     if (!list) {
       list = [];
@@ -50,7 +56,7 @@ const MEMBER_ICONS = [
 
 const iconByNick = computed(() => {
   const map = new Map<string, string>();
-  props.members.forEach((member, i) => {
+  membersList.value.forEach((member, i) => {
     map.set(member.nick, MEMBER_ICONS[i % MEMBER_ICONS.length]);
   });
   return map;

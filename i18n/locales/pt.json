@@ -1,5 +1,6 @@
 {
   "navbar": {
+    "home": "Início",
     "games": "Jogos",
     "members": "Equipe",
     "enableLight": "Ativar modo claro",
@@ -49,5 +50,41 @@
     "navHeading": "Navegação",
     "socialsHeading": "Redes sociais",
     "rights": "Todos os direitos reservados."
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "Estúdio de jogos indie",
+      "ctaPrimary": "Saiba mais",
+      "ctaPlatform": "Jogar agora",
+      "fallback": "Novidades sobre nossos próximos jogos em breve."
+    },
+    "spotlight": {
+      "eyebrow": "Em destaque",
+      "title": "O que estamos fazendo",
+      "cta": "Ver detalhes"
+    },
+    "highlights": {
+      "recent": "Mais recente",
+      "available": "Disponível agora",
+      "inDev": "Em desenvolvimento"
+    },
+    "games": {
+      "eyebrow": "Nosso catálogo",
+      "title": "Nossos jogos",
+      "empty": "Em breve, novos jogos por aqui.",
+      "viewAll": "Conheça todos os nossos jogos"
+    },
+    "studio": {
+      "eyebrow": "Quem somos",
+      "title": "Uma equipe, muitos mundos",
+      "description": "Da ideia ao pixel final, cada jogo da Pixel Mole nasce de um time pequeno dedicado a criar experiências com identidade própria.",
+      "statGames": "Jogos em desenvolvimento",
+      "statTeam": "Pessoas na equipe"
+    },
+    "team": {
+      "eyebrow": "Bastidores",
+      "title": "Quem faz a Pixel Mole",
+      "viewAll": "Conheça nossos membros"
+    }
   }
 }

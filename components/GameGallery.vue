@@ -13,22 +13,29 @@ import * as icons from "lucide-vue-next";
 // todas as imagens (banner incluso).
 const props = defineProps<{
   banner?: string;
-  screenshots: string[];
+  // Nullable de propósito: a coluna `screenshots` é nullable no Supabase, e
+  // um valor padrão de defineProps/withDefaults só resolve pra `undefined`
+  // — nunca pra `null` explícito, que é exatamente o que um jogo sem
+  // nenhum screenshot cadastrado envia. Por isso o fallback abaixo é feito
+  // manualmente via computed (`shots`), não como default de prop.
+  screenshots?: string[] | null;
   alt: string;
 }>();
 
 const MAX_VISIBLE_SHOTS = 4;
 
+// Única fonte de verdade pra "screenshots, sempre como array" — todo o
+// resto do componente lê daqui, nunca de `props.screenshots` direto.
+const shots = computed(() => props.screenshots ?? []);
+
 const hasBanner = computed(() => !!props.banner);
-const visibleShots = computed(() =>
-  props.screenshots.slice(0, MAX_VISIBLE_SHOTS),
-);
-const hiddenShots = computed(() => props.screenshots.slice(MAX_VISIBLE_SHOTS));
+const visibleShots = computed(() => shots.value.slice(0, MAX_VISIBLE_SHOTS));
+const hiddenShots = computed(() => shots.value.slice(MAX_VISIBLE_SHOTS));
 const remainingCount = computed(() =>
-  Math.max(0, props.screenshots.length - MAX_VISIBLE_SHOTS),
+  Math.max(0, shots.value.length - MAX_VISIBLE_SHOTS),
 );
 const totalImages = computed(
-  () => (hasBanner.value ? 1 : 0) + props.screenshots.length,
+  () => (hasBanner.value ? 1 : 0) + shots.value.length,
 );
 
 //// Leve tilt 3D no banner ao mover o mouse (só desktop)
@@ -82,7 +89,7 @@ function resetBannerTilt() {
 
       <!-- Screenshots -->
       <div
-        v-if="screenshots.length"
+        v-if="shots.length"
         class="grid grid-cols-2 gap-3 sm:grid-cols-4"
       >
         <a

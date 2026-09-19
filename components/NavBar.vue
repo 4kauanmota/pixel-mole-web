@@ -44,7 +44,8 @@ onUnmounted(() => document.removeEventListener("click", handleClickOutside));
 
 //// Navigation links
 const links = [
-  { label: $t("navbar.games"), to: "/" },
+  { label: $t("navbar.home"), to: "/" },
+  { label: $t("navbar.games"), to: "/games" },
   { label: $t("navbar.members"), to: "/members" },
 ];
 </script>

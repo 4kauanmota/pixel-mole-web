@@ -4,7 +4,35 @@ import type { Member, MemberSummary } from "~/types/member";
 export function mapGame(api: any): Game {
   return {
     ...api,
-    tags: api.tags.map((t: any) => t.tag),
+    // Normalização central de TUDO que o Supabase pode devolver como
+    // `null` em vez do "vazio" equivalente (array vazio / objeto neutro).
+    // Feito uma única vez aqui — na fronteira entre a API e o resto do
+    // app — em vez de espalhar `?? []`/checagens de null pelos componentes
+    // que consomem `Game`. Regra geral adotada: qualquer coluna nullable ou
+    // relacionamento que pode não resolver vira um valor "vazio" seguro
+    // (nunca `null`), e uma linha de junção órfã (ex.: tag apagada) é
+    // descartada em vez de virar um item quebrado no meio do array.
+    //
+    // `screenshots`: coluna nullable — jogos sem nenhum screenshot
+    // cadastrado (ex.: o "coming_soon" atual) vêm com `null`, não `[]`.
+    // Sem isso, qualquer leitura de `game.screenshots.length`
+    // (GameGallery.vue) quebra com "can't access property 'length',
+    // screenshots is null" — só não aparecia antes porque esse jogo nunca
+    // passava pelo GameModal (tem página própria); a seção "Em destaque"
+    // da home passou a exibi-lo direto, expondo o problema.
+    screenshots: api.screenshots ?? [],
+    // `game_types(*)` é muitos-pra-um — na prática sempre resolve (todo
+    // jogo tem um type_id), mas se algum dia vier nulo (FK quebrada), cai
+    // num tipo neutro em vez de deixar `game.type.name`/`.color` explodir
+    // em todo lugar que lê isso (Card.vue, GameModal.vue,
+    // getFeaturedGame em utils/games.ts...).
+    type: api.type ?? { name: "", color: "#3a3a3c" },
+    // `api.tags` pode vir `null` igual `screenshots` (sem fallback aqui
+    // antes, `.map` num `null` quebraria igual); e mesmo vindo como array,
+    // uma linha de `game_tags` cuja tag foi apagada resolve `t.tag` como
+    // `null` — o `.filter(Boolean)` descarta essas linhas órfãs (mesmo
+    // espírito do filter já usado abaixo para `members`).
+    tags: (api.tags ?? []).map((t: any) => t.tag).filter(Boolean),
     // A tabela `game_links` já retorna { platform, url } diretamente (não
     // precisa de "unwrap" como as tags), mas pode vir ausente/null caso a
     // query não peça o relacionamento — por isso o fallback para [].

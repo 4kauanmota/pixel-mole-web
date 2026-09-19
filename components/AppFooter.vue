@@ -84,6 +84,12 @@ function getIcon(name?: string): any {
               to="/"
               class="w-fit text-sm text-content-secondary transition-colors hover:text-content-primary"
             >
+              {{ t("navbar.home") }}
+            </NuxtLink>
+            <NuxtLink
+              to="/games"
+              class="w-fit text-sm text-content-secondary transition-colors hover:text-content-primary"
+            >
               {{ t("navbar.games") }}
             </NuxtLink>
             <NuxtLink

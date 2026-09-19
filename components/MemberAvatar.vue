@@ -60,11 +60,11 @@ const initialsSize = computed(() =>
        exatamente isso que esticou o avatar num oval no card em telas
        estreitas. -->
   <div
-    class="relative flex items-center justify-center overflow-hidden rounded-full border-2 border-pm-gray bg-pm-gray"
+    class="relative flex items-center justify-center overflow-hidden rounded-full border-2 border-border bg-surface-hover"
   >
     <span
       v-if="showInitials"
-      class="font-bold text-white"
+      class="font-bold text-content-primary"
       :class="initialsSize"
     >
       {{ getInitials(name) }}

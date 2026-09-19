@@ -9,10 +9,9 @@ const props = defineProps<{
 
 const hovered = ref(false);
 
-// `default_role` pode trazer 1 ou 2 cargos separados por vírgula — o
-// primeiro sempre vira a tag amarela de sempre; o segundo (se existir) vira
-// a nova tag roxa (ver SECONDARY_ROLE_COLOR).
-const roles = computed(() => splitRoles(props.member.defaultRole));
+// `default_role` é exibido exatamente como cadastrado, sem nenhum
+// tratamento (sem separar por vírgula, sem virar duas tags) — se a pessoa
+// cadastrar "Programador & Sound Designer", é isso que aparece, literal.
 
 // Nomes até esse tamanho sempre aparecem por completo — mesmo que precisem
 // quebrar em 2 linhas (ex.: "Liana Toledo", com 12 caracteres) — em vez de
@@ -33,7 +32,8 @@ const nameFits = computed(
       @mouseenter="hovered = true"
       @mouseleave="hovered = false"
       :active="hovered"
-      class="h-full w-full cursor-pointer shadow-md transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
+      radius="var(--radius-card)"
+      class="h-full w-full cursor-pointer shadow-md transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
     >
       <!-- Composição horizontal (foto à esquerda, informações à direita) em
            vez de um bloco vertical centralizado — evita o card quase
@@ -42,7 +42,7 @@ const nameFits = computed(
            padrão já usado no cabeçalho da página individual do membro
            (foto + bloco de texto lado a lado). -->
       <li
-        class="flex h-full items-center gap-4 overflow-hidden rounded-xl border-pm-gray bg-pm-black p-4 sm:gap-5 sm:p-5"
+        class="flex h-full items-center gap-4 overflow-hidden rounded-card border-border bg-surface-card p-4 sm:gap-5 sm:p-5"
       >
         <!-- Zoom no hover fica só na FOTO, dentro da própria área (mesmo
              mecanismo do thumbnail em Card.vue) — passar a escala pro
@@ -64,36 +64,25 @@ const nameFits = computed(
                NAME_TRUNCATE_THRESHOLD) usam break-words e podem ocupar 2
                linhas em vez de serem cortados; só nomes muito longos mantêm
                o line-clamp-1 de sempre. -->
-          <h1
-            class="text-xl font-bold text-white sm:text-2xl"
+          <h2
+            class="text-xl font-bold text-content-primary sm:text-2xl"
             :class="nameFits ? 'break-words' : 'line-clamp-1'"
           >
             {{ member.name }}
-          </h1>
+          </h2>
 
-          <p class="line-clamp-1 text-sm text-gray-500 sm:text-base">
+          <p class="line-clamp-1 text-sm text-content-muted sm:text-base">
             @{{ member.nick }}
           </p>
 
-          <!-- Cargo(s): a tag amarela de sempre, mais uma segunda tag roxa
-               quando o membro tem 2 cargos (ver splitRoles) — visualmente
-               distintas (outlined vs. preenchida) mas ambas cores da
-               identidade do estúdio. -->
-          <div v-if="roles.length" class="mt-2 flex flex-wrap gap-1.5">
+          <!-- Cargo: uma única tag com o texto de default_role exatamente
+               como cadastrado — nenhum split, nenhuma segunda cor. -->
+          <div v-if="member.defaultRole" class="mt-2 flex flex-wrap gap-1.5">
             <Tag
-              v-if="roles[0]"
-              :name="roles[0]"
+              :name="member.defaultRole"
               raw
-              color="var(--pm-yellow)"
+              color="var(--accent)"
               variant="outlined"
-              class="max-w-full"
-            />
-            <Tag
-              v-if="roles[1]"
-              :name="roles[1]"
-              raw
-              :color="SECONDARY_ROLE_COLOR"
-              variant="filled"
               class="max-w-full"
             />
           </div>

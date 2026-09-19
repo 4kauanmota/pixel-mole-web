@@ -59,7 +59,7 @@ function resetBannerTilt() {
         ref="bannerTile"
         :href="banner"
         data-fancybox="gallery"
-        class="banner-tile group relative block aspect-video cursor-zoom-in overflow-hidden rounded-2xl border border-pm-gray/60 shadow-2xl shadow-black/50 sm:aspect-[16/9] lg:aspect-[16/8]"
+        class="banner-tile group relative block aspect-video cursor-zoom-in overflow-hidden rounded-2xl border border-border shadow-2xl shadow-black/50 sm:aspect-[16/9] lg:aspect-[16/8]"
         @mousemove="handleBannerMove"
         @mouseleave="resetBannerTilt"
       >
@@ -90,7 +90,7 @@ function resetBannerTilt() {
           :key="i"
           :href="shot"
           data-fancybox="gallery"
-          class="group relative block aspect-video cursor-zoom-in overflow-hidden rounded-xl border border-pm-gray/60 shadow-md shadow-black/30 transition-transform duration-300 hover:-translate-y-0.5"
+          class="group relative block aspect-video cursor-zoom-in overflow-hidden rounded-xl border border-border shadow-md shadow-black/30 transition-transform duration-300 hover:-translate-y-0.5"
         >
           <img
             :src="shot"

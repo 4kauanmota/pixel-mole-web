@@ -22,9 +22,9 @@ defineProps<{
     aria-live="polite"
   >
     <span
-      class="h-10 w-10 animate-spin rounded-full border-4 border-pm-gray border-t-pm-yellow"
+      class="h-10 w-10 animate-spin rounded-full border-4 border-border border-t-accent"
       aria-hidden="true"
     />
-    <p class="text-sm text-gray-500">{{ message ?? $t("loading.games") }}</p>
+    <p class="text-sm text-content-muted">{{ message ?? $t("loading.games") }}</p>
   </div>
 </template>

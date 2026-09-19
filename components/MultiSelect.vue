@@ -8,6 +8,8 @@ const props = defineProps<{
 }>();
 const emit = defineEmits(["update:modelValue"]);
 
+const { t } = useI18n();
+const { label } = useCatalogLabel();
 const open = ref(false);
 const container = ref<HTMLElement>();
 
@@ -39,19 +41,19 @@ function toggle(value: string) {
     <Transition name="fade">
       <div
         v-if="open"
-        class="fixed inset-0 z-40 backdrop-blur-sm bg-black/40"
+        class="fixed inset-0 z-40 backdrop-blur-sm bg-surface-scrim"
         @click="open = false"
       />
     </Transition>
 
-    <GradientBorder :active="open" class="relative z-50 h-full">
+    <GradientBorder radius="var(--radius-control)" :active="open" class="relative z-50 h-full">
       <div
-        class="flex min-w-0 cursor-pointer items-center transition-opacity duration-200 hover:opacity-80 active:scale-80"
+        class="flex min-w-0 cursor-pointer items-center text-content-primary transition-opacity duration-200 hover:opacity-80 active:scale-80"
         :class="FILTER_CONTROL_CLASSES"
         @click="open = !open"
       >
         <span class="flex min-w-0 items-center gap-1 select-none">
-          Selecionar tags
+          {{ t("filters.selectTags") }}
           <component
             :is="getIcon('ChevronDown')"
             :size="16"
@@ -65,7 +67,7 @@ function toggle(value: string) {
     <Transition name="dropdown">
       <div
         v-if="open"
-        class="absolute top-full right-0 min-w-max mt-1 z-50 rounded-xl overflow-hidden border border-gray-700 bg-[#1a1a1c]"
+        class="absolute top-full right-0 min-w-max mt-1 z-50 rounded-xl overflow-hidden border border-border-strong bg-surface-overlay shadow-lg"
       >
         <div
           v-for="opt in options"
@@ -74,7 +76,7 @@ function toggle(value: string) {
           :class="
             modelValue.includes(opt.name)
               ? 'bg-pm-yellow hover:opacity-90'
-              : 'hover:bg-[#2a2a2c]'
+              : 'hover:bg-surface-hover'
           "
           @click="toggle(opt.name)"
         >
@@ -83,7 +85,7 @@ function toggle(value: string) {
             :class="
               modelValue.includes(opt.name)
                 ? 'bg-pm-dark border-pm-dark text-pm-yellow'
-                : 'border-gray-600 text-transparent'
+                : 'border-border-strong text-transparent'
             "
           >
             ✓</span
@@ -93,17 +95,17 @@ function toggle(value: string) {
             :size="16"
             class="shrink-0"
             :class="
-              modelValue.includes(opt.name) ? 'text-pm-dark' : 'text-gray-400'
+              modelValue.includes(opt.name) ? 'text-pm-dark' : 'text-content-muted'
             "
           />
           <span
             :class="
               modelValue.includes(opt.name)
                 ? 'text-pm-dark font-medium'
-                : 'text-white'
+                : 'text-content-primary'
             "
           >
-            {{ toLabel(opt.name) }}
+            {{ label("tags", opt.name) }}
           </span>
         </div>
       </div>

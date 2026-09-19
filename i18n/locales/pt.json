@@ -1,12 +1,24 @@
 {
   "navbar": {
     "games": "Jogos",
-    "members": "Equipe"
+    "members": "Equipe",
+    "enableLight": "Ativar modo claro",
+    "enableDark": "Ativar modo escuro"
   },
   "loading": {
     "games": "Carregando jogos...",
     "members": "Carregando equipe...",
     "member": "Carregando membro..."
+  },
+  "filters": {
+    "searchPlaceholder": "Buscar jogos...",
+    "selectTags": "Selecionar tags"
+  },
+  "gameModal": {
+    "tags": "Tags",
+    "about": "Sobre o jogo",
+    "availableOn": "Disponível em",
+    "close": "Fechar"
   },
   "members": {
     "title": "Equipe do Estúdio",
@@ -18,5 +30,24 @@
     "games": "Jogos",
     "noGames": "Ainda sem jogos creditados.",
     "notFound": "Membro não encontrado."
+  },
+  "catalog": {
+    "types": {
+      "all_games": "Todos os Jogos",
+      "coming_soon": "Em Breve",
+      "game_jam": "Game Jam"
+    },
+    "tags": {
+      "romance": "Romance",
+      "visual_novel": "Visual Novel",
+      "adventure": "Aventura",
+      "platform": "Plataforma"
+    }
+  },
+  "footer": {
+    "about": "Estúdio de jogos indie.",
+    "navHeading": "Navegação",
+    "socialsHeading": "Redes sociais",
+    "rights": "Todos os direitos reservados."
   }
 }

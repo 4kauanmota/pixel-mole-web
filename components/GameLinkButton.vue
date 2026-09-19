@@ -50,7 +50,7 @@ function getIcon(name: string): any {
     <svg
       v-if="hasBrandIcon"
       viewBox="0 0 24 24"
-      class="h-5 w-5 fill-current text-white transition-colors duration-300 ease-out group-hover/link:text-pm-dark"
+      class="h-5 w-5 fill-current text-white transition-colors duration-300 ease-out group-hover/link:text-accent-contrast"
       aria-hidden="true"
     >
       <path :d="brandIconPath" />
@@ -62,11 +62,11 @@ function getIcon(name: string): any {
       :is="getIcon(fallbackIconName)"
       v-else
       :size="20"
-      class="text-white transition-colors duration-300 ease-out group-hover/link:text-pm-dark"
+      class="text-white transition-colors duration-300 ease-out group-hover/link:text-accent-contrast"
     />
 
     <span
-      class="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md border border-pm-gray bg-pm-black px-2 py-1 text-xs text-white opacity-0 shadow-lg transition-opacity duration-200 group-hover/link:opacity-100"
+      class="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md border border-border bg-surface-overlay px-2 py-1 text-xs text-content-primary opacity-0 shadow-lg transition-opacity duration-200 group-hover/link:opacity-100"
     >
       {{ label }}
     </span>
@@ -82,6 +82,6 @@ function getIcon(name: string): any {
 }
 
 .link-badge:hover {
-  background-color: var(--pm-yellow);
+  background-color: var(--accent);
 }
 </style>

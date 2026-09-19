@@ -5,9 +5,13 @@ import * as icons from "lucide-vue-next";
 const props = defineProps<{
   modelValue: string;
   options: string[];
+  // Namespace de tradução usado pra exibir cada opção (ver useCatalogLabel)
+  // — "types" pro filtro de status de jogo, que é o único uso hoje.
+  kind?: "tags" | "types";
 }>();
 const emit = defineEmits(["update:modelValue"]);
 
+const { label } = useCatalogLabel();
 const open = ref(false);
 const container = ref<HTMLElement>();
 
@@ -30,14 +34,14 @@ function select(value: string) {
     <Transition name="fade">
       <div
         v-if="open"
-        class="fixed inset-0 z-40 backdrop-blur-sm bg-black/40"
+        class="fixed inset-0 z-40 backdrop-blur-sm bg-surface-scrim"
         @click="open = false"
       />
     </Transition>
 
-    <GradientBorder :active="open" class="relative z-50 h-full">
+    <GradientBorder radius="var(--radius-control)" :active="open" class="relative z-50 h-full">
       <div
-        class="flex min-w-0 cursor-pointer items-center transition-opacity duration-200 hover:opacity-80"
+        class="flex min-w-0 cursor-pointer items-center text-content-primary transition-opacity duration-200 hover:opacity-80"
         :class="FILTER_CONTROL_CLASSES"
         @click="open = !open"
       >
@@ -47,7 +51,7 @@ function select(value: string) {
                fonte; sem isso, o "overflow-hidden" do truncate corta o
                rabinho de letras com descendente (ex.: o "g" de "games"). -->
           <span class="truncate leading-6">{{
-            toLabel(options.find((o) => o === modelValue) as string)
+            label(kind ?? "types", options.find((o) => o === modelValue) as string)
           }}</span>
           <component
             :is="icons['ChevronDown']"
@@ -62,7 +66,7 @@ function select(value: string) {
     <Transition name="dropdown">
       <div
         v-if="open"
-        class="absolute top-full right-0 min-w-max mt-1 z-50 rounded-xl overflow-hidden border border-gray-700 bg-[#1a1a1c]"
+        class="absolute top-full right-0 min-w-max mt-1 z-50 rounded-xl overflow-hidden border border-border-strong bg-surface-overlay shadow-lg"
       >
         <div
           v-for="option in options"
@@ -71,16 +75,18 @@ function select(value: string) {
           :class="
             modelValue === option
               ? 'bg-pm-yellow hover:opacity-90'
-              : 'hover:bg-[#2a2a2c]'
+              : 'hover:bg-surface-hover'
           "
           @click="select(option)"
         >
           <span
             :class="
-              modelValue === option ? 'text-pm-dark font-medium' : 'text-white'
+              modelValue === option
+                ? 'text-pm-dark font-medium'
+                : 'text-content-primary'
             "
           >
-            {{ toLabel(option) }}
+            {{ label(kind ?? "types", option) }}
           </span>
         </div>
       </div>

@@ -65,9 +65,7 @@ function getIcon(name?: string): any {
 <template>
   <div class="flex flex-col gap-4">
     <div v-for="group in groupedMembers" :key="group.role">
-      <h3
-        class="mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500"
-      >
+      <h3 class="eyebrow mb-1.5">
         {{ group.role }}
       </h3>
 
@@ -78,18 +76,18 @@ function getIcon(name?: string): any {
           <NuxtLink
             :to="`/members/${encodeURIComponent(member.nick)}`"
             :title="member.name"
-            class="group inline-flex items-center gap-1 text-gray-400 transition-colors duration-200 hover:text-pm-yellow"
+            class="group inline-flex items-center gap-1 text-content-secondary transition-colors duration-200 hover:text-accent"
           >
             <component
               :is="getIcon(iconByNick.get(member.nick))"
               :size="13"
-              class="shrink-0 text-gray-500 transition-colors duration-200 group-hover:text-pm-yellow"
+              class="shrink-0 text-content-muted transition-colors duration-200 group-hover:text-accent"
             />
             @{{ member.nick }}
           </NuxtLink>
           <span
             v-if="i < group.members.length - 1"
-            class="text-gray-600"
+            class="text-content-faint"
             aria-hidden="true"
           >
             ·

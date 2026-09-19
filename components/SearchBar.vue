@@ -4,6 +4,7 @@ import { ref } from "vue";
 defineProps<{ modelValue: string }>();
 defineEmits(["update:modelValue"]);
 
+const { t } = useI18n();
 const focused = ref(false);
 </script>
 
@@ -12,12 +13,12 @@ const focused = ref(false);
     <Transition name="fade">
       <div
         v-if="focused"
-        class="fixed inset-0 z-40 backdrop-blur-sm bg-black/40"
+        class="fixed inset-0 z-40 backdrop-blur-sm bg-surface-scrim"
         @click="focused = false"
       />
     </Transition>
 
-    <GradientBorder :active="focused" class="relative z-50 h-full">
+    <GradientBorder radius="var(--radius-control)" :active="focused" class="relative z-50 h-full">
       <input
         type="text"
         :value="modelValue"
@@ -26,8 +27,8 @@ const focused = ref(false);
         "
         @focus="focused = true"
         @blur="focused = false"
-        placeholder="Buscar jogos..."
-        class="h-full w-full"
+        :placeholder="t('filters.searchPlaceholder')"
+        class="h-full w-full bg-transparent text-content-primary placeholder:text-content-muted"
         :class="FILTER_CONTROL_CLASSES"
       />
     </GradientBorder>

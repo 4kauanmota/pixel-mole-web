@@ -16,6 +16,8 @@ const emit = defineEmits<{
   (e: "update:open", value: boolean): void;
 }>();
 
+const { t } = useI18n();
+
 function close() {
   emit("update:open", false);
 }
@@ -70,7 +72,7 @@ const hasInfo = computed(
         <Transition name="modal-panel">
           <div
             v-if="open"
-            class="relative mx-auto w-full max-w-[1400px] rounded-2xl border border-pm-gray bg-pm-black shadow-2xl"
+            class="relative mx-auto w-full max-w-[1400px] rounded-panel border border-border bg-surface-card shadow-2xl"
             role="dialog"
             aria-modal="true"
             :aria-label="game.name"
@@ -84,8 +86,8 @@ const hasInfo = computed(
             />
 
             <button
-              class="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-pm-yellow text-pm-dark shadow-lg transition-transform duration-300 hover:scale-110 hover:rotate-90 active:scale-95 sm:-right-3 sm:-top-3"
-              aria-label="Fechar"
+              class="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-accent text-accent-contrast shadow-lg transition-transform duration-300 hover:scale-110 hover:rotate-90 active:scale-95 sm:-right-3 sm:-top-3"
+              :aria-label="t('gameModal.close')"
               @click="close"
             >
               <component :is="icons['X']" :size="20" />
@@ -97,12 +99,13 @@ const hasInfo = computed(
                 <Tag
                   :name="game.type.name"
                   :color="game.type.color"
+                  kind="types"
                   variant="outlined"
                   size="lg"
                   class="mb-3 inline-flex"
                 />
                 <h2
-                  class="max-w-3xl break-words text-3xl font-bold text-white sm:text-4xl"
+                  class="max-w-3xl break-words text-3xl font-bold text-content-primary sm:text-4xl"
                 >
                   {{ game.name }}
                 </h2>
@@ -124,11 +127,7 @@ const hasInfo = computed(
                   class="flex flex-col gap-6 lg:col-span-2"
                 >
                   <div v-if="hasTags">
-                    <h3
-                      class="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500"
-                    >
-                      Tags
-                    </h3>
+                    <h3 class="eyebrow mb-3">{{ t("gameModal.tags") }}</h3>
                     <div class="flex flex-wrap gap-2.5">
                       <Tag
                         v-for="tag in game.tags"
@@ -136,19 +135,16 @@ const hasInfo = computed(
                         :name="tag.name"
                         :color="tag.color"
                         :icon="tag.icon"
+                        kind="tags"
                         size="lg"
                       />
                     </div>
                   </div>
 
                   <div v-if="hasDescription">
-                    <h3
-                      class="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500"
-                    >
-                      Sobre o jogo
-                    </h3>
+                    <h3 class="eyebrow mb-3">{{ t("gameModal.about") }}</h3>
                     <p
-                      class="whitespace-pre-line leading-relaxed text-gray-400"
+                      class="whitespace-pre-line leading-relaxed text-content-secondary"
                     >
                       {{ game.description }}
                     </p>
@@ -156,12 +152,10 @@ const hasInfo = computed(
 
                   <div
                     v-if="hasLinks"
-                    class="mt-auto rounded-2xl border border-pm-gray/60 bg-white/[0.03] p-5"
+                    class="mt-auto rounded-panel border border-border-subtle bg-surface-panel p-5"
                   >
-                    <h3
-                      class="mb-4 text-xs font-semibold uppercase tracking-wider text-gray-500"
-                    >
-                      Disponível em
+                    <h3 class="eyebrow mb-4">
+                      {{ t("gameModal.availableOn") }}
                     </h3>
                     <div class="flex flex-wrap gap-3">
                       <GameLinkButton
@@ -179,7 +173,7 @@ const hasInfo = computed(
                    em colunas acima — só aproveita o espaço abaixo dele. -->
               <div
                 v-if="hasCredits"
-                class="mt-10 border-t border-pm-gray/60 pt-8"
+                class="mt-10 border-t border-border-subtle pt-8"
               >
                 <GameCredits :members="game.members ?? []" />
               </div>

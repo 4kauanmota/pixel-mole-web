@@ -12,10 +12,16 @@ const props = defineProps<{
   // detalhes, onde as tags precisam de mais presença visual/leitura.
   size?: "sm" | "lg";
   // Quando true, exibe `name` exatamente como recebido, sem passar pelo
-  // toLabel(). Necessário para valores livres digitados por humanos (ex.:
-  // o cargo de um membro num jogo), que não seguem o padrão snake_case dos
-  // enums do banco (tags/tipos de jogo) e não devem ser reformatados.
+  // toLabel()/catálogo de tradução. Necessário para valores livres digitados
+  // por humanos (ex.: o cargo de um membro num jogo), que não seguem o
+  // padrão snake_case dos enums do banco e não devem ser reformatados nem
+  // procurados no catálogo.
   raw?: boolean;
+  // Qual catálogo de tradução usar pra `name` (ver useCatalogLabel) — tipos
+  // de jogo (coming_soon, game_jam...) e tags de gênero (romance,
+  // adventure...) vivem em namespaces diferentes no i18n. Ignorado quando
+  // `raw` é true.
+  kind?: "tags" | "types";
   // Usado só nas tags selecionadas como filtro (pages/index.vue): no hover,
   // sinaliza que o clique vai remover aquele filtro — fundo vermelho
   // translúcido + um "X" ao final do texto. Não muda o clique em si (quem
@@ -25,6 +31,12 @@ const props = defineProps<{
   // restrito a esse uso.
   removable?: boolean;
 }>();
+
+const { label } = useCatalogLabel();
+
+const displayText = computed(() =>
+  props.raw ? props.name : label(props.kind ?? "tags", props.name),
+);
 
 //// Utils
 function getIcon(name?: string): any {
@@ -55,7 +67,7 @@ const style = computed(() => {
 const sizeClasses = computed(() => {
   const base =
     props.size === "lg"
-      ? "gap-1.5 px-4 py-1.5 text-sm"
+      ? "gap-1.5 px-4 py-2 text-sm"
       : "gap-1.5 px-3 py-1.5 text-xs";
   const weight = props.variant === "outlined" ? "font-bold" : "font-medium";
   return `${base} ${weight}`;
@@ -92,7 +104,7 @@ const iconSize = computed(() => (props.size === "lg" ? 18 : 16));
        então SIM declarar `cursor-pointer` explicitamente na própria classe
        — o que não quebra esse mecanismo, só deixa de depender dele. -->
   <span
-    class="flex items-center rounded-full"
+    class="flex max-w-full items-center rounded-full"
     :class="[sizeClasses, removable && removableClasses]"
     :style="style"
   >
@@ -102,7 +114,7 @@ const iconSize = computed(() => (props.size === "lg" ? 18 : 16));
       :size="iconSize"
       class="shrink-0"
     />
-    {{ raw ? name : toLabel(name) }}
+    <span class="min-w-0 truncate">{{ displayText }}</span>
     <!-- Sempre renderizado (não v-if em cima do hover) e só com a opacidade
          animada: assim o espaço do "X" já fica reservado desde o início e
          a tag não muda de tamanho/empurra as vizinhas ao passar o mouse. -->

@@ -1,12 +1,24 @@
 {
   "navbar": {
     "games": "Games",
-    "members": "Team"
+    "members": "Team",
+    "enableLight": "Enable light mode",
+    "enableDark": "Enable dark mode"
   },
   "loading": {
     "games": "Loading games...",
     "members": "Loading team...",
     "member": "Loading member..."
+  },
+  "filters": {
+    "searchPlaceholder": "Search games...",
+    "selectTags": "Select tags"
+  },
+  "gameModal": {
+    "tags": "Tags",
+    "about": "About the game",
+    "availableOn": "Available on",
+    "close": "Close"
   },
   "members": {
     "title": "Studio Team",
@@ -18,5 +30,24 @@
     "games": "Games",
     "noGames": "No games credited yet.",
     "notFound": "Member not found."
+  },
+  "catalog": {
+    "types": {
+      "all_games": "All Games",
+      "coming_soon": "Coming Soon",
+      "game_jam": "Game Jam"
+    },
+    "tags": {
+      "romance": "Romance",
+      "visual_novel": "Visual Novel",
+      "adventure": "Adventure",
+      "platform": "Platformer"
+    }
+  },
+  "footer": {
+    "about": "Indie game studio.",
+    "navHeading": "Navigation",
+    "socialsHeading": "Social links",
+    "rights": "All rights reserved."
   }
 }

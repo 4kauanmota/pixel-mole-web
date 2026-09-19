@@ -25,7 +25,7 @@ const isActive = computed(() =>
   position: relative;
   border-radius: var(--radius);
   padding: 2px;
-  background: var(--pm-gray);
+  background: var(--border-strong);
 }
 
 .gradient-border::before {
@@ -47,7 +47,7 @@ const isActive = computed(() =>
   position: relative;
   z-index: 1;
   border-radius: calc(var(--radius) - 2px);
-  background: var(--pm-black);
+  background: var(--surface-card);
   width: 100%;
   height: 100%;
   border: none;

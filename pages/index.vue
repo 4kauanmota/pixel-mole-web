@@ -98,6 +98,20 @@ onMounted(async () => {
       <AppLoader v-if="isLoading" />
 
       <template v-else>
+        <!-- Cabeçalho leve da página: só título + traço de destaque (sem
+             virar mais um "bloco"/painel) — dá identidade e um único <h1>
+             real pra página, que antes não tinha nenhum. -->
+        <div v-reveal class="mb-8 sm:mb-10">
+          <h1
+            class="font-display text-3xl font-bold tracking-tight text-content-primary sm:text-4xl"
+          >
+            {{ $t("navbar.games") }}
+          </h1>
+          <div
+            class="mt-3 h-1 w-16 rounded-full bg-gradient-to-r from-pm-yellow to-pm-orange"
+          />
+        </div>
+
         <div
           class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4"
           :class="selectedTags.length ? 'mb-4 sm:mb-6' : 'mb-6 sm:mb-8'"
@@ -108,6 +122,7 @@ onMounted(async () => {
             <Select
               v-model="selectedStatus"
               :options="allTypes.map((type) => type.name)"
+              kind="types"
               class="min-w-0 flex-1 sm:flex-initial"
             />
 
@@ -135,6 +150,7 @@ onMounted(async () => {
                 :name="allTags.find((o) => o.name === tag)?.name || ''"
                 :color="allTags.find((o) => o.name === tag)?.color || ''"
                 :icon="allTags.find((o) => o.name === tag)?.icon || ''"
+                kind="tags"
                 removable
               />
             </span>
@@ -147,4 +163,6 @@ onMounted(async () => {
       </template>
     </main>
   </Container>
+
+  <AppFooter />
 </template>

@@ -90,11 +90,9 @@ onMounted(async () => {
   }
 });
 
-// `default_role` pode trazer 1 ou 2 cargos separados por vírgula — mesma
-// lógica/cores do card da listagem (ver MemberCard.vue e
-// SECONDARY_ROLE_COLOR em utils/formatters.ts), só que em tamanho "lg"
-// (mesmo padrão que a tag única já usava aqui).
-const memberRoles = computed(() => splitRoles(member.value?.defaultRole ?? ""));
+// `default_role` é exibido exatamente como cadastrado, sem nenhum
+// tratamento — mesma regra do card da listagem (ver MemberCard.vue), só
+// que em tamanho "lg" (mesmo padrão que a tag já usava aqui).
 
 // Resumo das atuações do membro nos jogos do estúdio: agrupa
 // member.games[].roleInGame, contando quantas vezes cada cargo se repete
@@ -123,15 +121,20 @@ const roleSummary = computed(() => {
              e "Sobre" tudo dentro de UM ÚNICO container — antes eram 3
              painéis separados (cabeçalho/bio/redes), o que sobrava espaço
              vazio e lia como uma sequência de cards soltos. O fundo aqui é
-             o mesmo bg-pm-black usado no <li> do Card.vue e no painel do
-             GameModal (o "escuro" real dos cards do site) — não o
-             bg-white/[0.03], que é o painel INTERNO mais claro usado pra
-             sub-seções dentro de um container pm-black (é o que a caixa de
-             redes sociais abaixo reaproveita, no mesmo espírito da seção
-             "Disponível em" do GameModal). -->
+             o mesmo bg-surface-card usado no <li> do Card.vue e no painel do
+             GameModal (a "superfície de card" real do site, que muda com o
+             tema) — não o bg-surface-panel, que é o painel INTERNO mais
+             claro usado pra sub-seções dentro de um container de card (é o
+             que a caixa de redes sociais abaixo reaproveita, no mesmo
+             espírito da seção "Disponível em" do GameModal). -->
         <div
-          class="mb-6 rounded-2xl border border-pm-gray/60 bg-pm-black p-6 sm:mb-8 sm:p-8 lg:p-10"
+          v-reveal
+          class="relative mb-6 overflow-hidden rounded-panel border border-border bg-surface-card p-6 sm:mb-8 sm:p-8 lg:p-10"
         >
+          <div
+            class="pointer-events-none absolute inset-0 -z-10 opacity-60"
+            style="background: radial-gradient(36rem 24rem at 10% -20%, var(--ambient-1), transparent 60%)"
+          />
           <!-- Área principal (foto + nome/@nick/cargo) e área complementar
                (redes sociais) lado a lado em telas largas; empilha em
                telas estreitas. -->
@@ -151,34 +154,24 @@ const roleSummary = computed(() => {
 
               <div class="min-w-0">
                 <h1
-                  class="break-words text-3xl font-bold text-white sm:text-4xl"
+                  class="break-words font-display text-3xl font-bold text-content-primary sm:text-4xl"
                 >
                   {{ member.name }}
                 </h1>
-                <p class="mt-1 text-gray-500">@{{ member.nick }}</p>
+                <p class="mt-1 text-content-muted">@{{ member.nick }}</p>
 
-                <!-- Cargo(s): mesma tag amarela de sempre, mais uma segunda
-                     tag roxa quando o membro tem 2 cargos (ver splitRoles
-                     em utils/formatters.ts) — mesmo tratamento do card da
-                     listagem (MemberCard.vue). -->
+                <!-- Cargo: uma única tag com default_role exatamente como
+                     cadastrado, mesmo tratamento do card da listagem
+                     (MemberCard.vue). -->
                 <div
-                  v-if="memberRoles.length"
+                  v-if="member.defaultRole"
                   class="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start"
                 >
                   <Tag
-                    v-if="memberRoles[0]"
-                    :name="memberRoles[0]"
+                    :name="member.defaultRole"
                     raw
-                    color="var(--pm-yellow)"
+                    color="var(--accent)"
                     variant="outlined"
-                    size="lg"
-                  />
-                  <Tag
-                    v-if="memberRoles[1]"
-                    :name="memberRoles[1]"
-                    raw
-                    :color="SECONDARY_ROLE_COLOR"
-                    variant="filled"
                     size="lg"
                   />
                 </div>
@@ -198,9 +191,7 @@ const roleSummary = computed(() => {
               v-if="member.socials.length"
               class="flex shrink-0 flex-col items-center gap-3 lg:items-end"
             >
-              <h2
-                class="text-xs font-semibold uppercase tracking-wider text-gray-500"
-              >
+              <h2 class="eyebrow">
                 {{ $t("members.socials") }}
               </h2>
               <div class="flex flex-wrap justify-center gap-3 lg:justify-end">
@@ -222,14 +213,12 @@ const roleSummary = computed(() => {
                lado. -->
           <div
             v-if="member.description"
-            class="mt-8 border-t border-white/10 pt-6"
+            class="mt-8 border-t border-border-subtle pt-6"
           >
-            <h2
-              class="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500"
-            >
+            <h2 class="eyebrow mb-3">
               {{ $t("members.about") }}
             </h2>
-            <p class="whitespace-pre-line leading-relaxed text-gray-400">
+            <p class="whitespace-pre-line leading-relaxed text-content-secondary">
               {{ member.description }}
             </p>
           </div>
@@ -241,10 +230,8 @@ const roleSummary = computed(() => {
                outros blocos deste container, com as mesmas tags outlined
                amarelas já usadas pra cargo (não usa a cor roxa, que é
                exclusiva das tags de cargo GERAL do membro logo acima). -->
-          <div v-if="roleSummary.length" class="mt-8 border-t border-white/10 pt-6">
-            <h2
-              class="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500"
-            >
+          <div v-if="roleSummary.length" class="mt-8 border-t border-border-subtle pt-6">
+            <h2 class="eyebrow mb-3">
               {{ $t("members.roles") }}
             </h2>
             <div class="flex flex-wrap gap-2">
@@ -253,7 +240,7 @@ const roleSummary = computed(() => {
                 :key="entry.role"
                 :name="`${entry.role} · ${entry.count}x`"
                 raw
-                color="var(--pm-yellow)"
+                color="var(--accent)"
                 variant="outlined"
                 icon="User"
               />
@@ -267,9 +254,7 @@ const roleSummary = computed(() => {
              (ver components/Card.vue). Membro sem jogos ainda tem uma
              página válida — só mostramos uma mensagem no lugar da grade. -->
         <section>
-          <h2
-            class="mb-4 text-xs font-semibold uppercase tracking-wider text-gray-500"
-          >
+          <h2 class="eyebrow mb-4">
             {{ $t("members.games") }}
           </h2>
 
@@ -282,11 +267,13 @@ const roleSummary = computed(() => {
             />
           </CardContainer>
 
-          <p v-else class="text-sm text-gray-500">
+          <p v-else class="text-sm text-content-muted">
             {{ $t("members.noGames") }}
           </p>
         </section>
       </template>
     </main>
   </Container>
+
+  <AppFooter />
 </template>

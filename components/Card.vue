@@ -41,10 +41,11 @@ function handleClick(e: Event) {
       @mouseenter="hovered = true"
       @mouseleave="hovered = false"
       :active="hovered"
-      class="h-full w-full cursor-pointer shadow-md transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
+      radius="var(--radius-card)"
+      class="h-full w-full cursor-pointer shadow-md transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
     >
       <li
-        class="flex h-full flex-col overflow-hidden rounded-xl border-pm-gray bg-pm-black"
+        class="flex h-full flex-col overflow-hidden rounded-card border-border bg-surface-card"
       >
         <!-- Thumbnail: proporção 16/10, com o tipo do jogo sobreposto como
              selo (mesmo padrão "outlined" usado no GameModal para o tipo),
@@ -63,17 +64,18 @@ function handleClick(e: Event) {
             :key="game.type.name"
             :name="game.type.name"
             :color="game.type.color"
+            kind="types"
             variant="outlined"
-            class="absolute left-3 top-3 !bg-pm-black/70 backdrop-blur-sm"
+            class="absolute left-3 top-3 !bg-black/55 backdrop-blur-sm"
           />
         </div>
 
         <div class="flex flex-1 flex-col gap-3 p-4 sm:p-5">
-          <h1 class="line-clamp-1 text-lg font-bold text-white sm:text-xl">
+          <h2 class="line-clamp-1 text-lg font-bold text-content-primary sm:text-xl">
             {{ game.name }}
-          </h1>
+          </h2>
 
-          <p class="line-clamp-2 text-sm leading-relaxed text-gray-400">
+          <p class="line-clamp-2 text-sm leading-relaxed text-content-secondary">
             {{ game.description }}
           </p>
 
@@ -84,12 +86,12 @@ function handleClick(e: Event) {
                com um ícone de pessoa. -->
           <div
             v-if="roleLabel"
-            class="flex items-center gap-1.5 text-sm text-gray-400"
+            class="flex items-center gap-1.5 text-sm text-content-secondary"
           >
             <component
               :is="icons['User']"
               :size="14"
-              class="shrink-0 text-pm-yellow"
+              class="shrink-0 text-accent"
             />
             <span class="truncate">{{ roleLabel }}</span>
           </div>
@@ -102,7 +104,7 @@ function handleClick(e: Event) {
                âncora, em vez de disputar o mesmo espaço das tags. -->
           <div
             v-if="game.tags.length"
-            class="mt-auto flex flex-wrap gap-1.5 border-t border-white/10 pt-3"
+            class="mt-auto flex flex-wrap gap-1.5 border-t border-border-subtle pt-3"
           >
             <Tag
               v-for="tag in game.tags"
@@ -110,6 +112,7 @@ function handleClick(e: Event) {
               :name="tag.name"
               :color="tag.color"
               :icon="tag.icon"
+              kind="tags"
             />
           </div>
         </div>

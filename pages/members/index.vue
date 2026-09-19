@@ -58,23 +58,26 @@ onMounted(async () => {
       <AppLoader v-if="isLoading" :message="$t('loading.members')" />
 
       <template v-else>
-        <!-- Introdução: painel com o mesmo fundo opaco dos cards (bg-pm-black,
-             como em Card.vue/MemberCard.vue) + a borda sutil usada nos
-             painéis do GameModal. Só o conteúdo textual (título, texto de
-             apresentação e a contagem real de membros) — sem logo ou
-             qualquer elemento decorativo adicional. -->
-        <div
-          class="mb-6 rounded-2xl border border-pm-gray/60 bg-pm-black p-6 text-center sm:mb-8 sm:p-10 sm:text-left"
-        >
-          <h1 class="mb-2 text-3xl font-bold text-white sm:text-4xl">
+        <!-- Cabeçalho aberto, sem card/bloco de fundo atrás — mesma
+             abordagem do topo da página de jogos (título + traço de
+             destaque, texto direto no background). Mesmas informações de
+             antes (título, texto de apresentação, contagem), só que
+             integradas à página em vez de dentro de um painel. -->
+        <div v-reveal class="mb-8 sm:mb-10">
+          <h1
+            class="font-display text-3xl font-bold tracking-tight text-content-primary sm:text-4xl"
+          >
             {{ $t("members.title") }}
           </h1>
-          <p class="max-w-xl leading-relaxed text-gray-400">
+          <div
+            class="mt-3 h-1 w-16 rounded-full bg-gradient-to-r from-pm-yellow to-pm-orange"
+          />
+          <p class="mt-4 max-w-xl leading-relaxed text-content-secondary">
             {{ $t("members.intro") }}
           </p>
           <p
             v-if="allMembers.length"
-            class="mt-4 text-sm font-medium text-pm-yellow"
+            class="mt-3 text-sm font-medium text-accent"
           >
             {{ $t("members.count", { count: allMembers.length }) }}
           </p>
@@ -90,4 +93,6 @@ onMounted(async () => {
       </template>
     </main>
   </Container>
+
+  <AppFooter />
 </template>

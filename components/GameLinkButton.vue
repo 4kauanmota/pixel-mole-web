@@ -15,8 +15,16 @@ const props = defineProps<{
 // inspecionada pra decidir o ícone, só é usada como destino do link (href).
 const platformKey = computed(() => props.link.platform);
 
+// `LINK_PLATFORMS`/`BRAND_ICONS` usam chaves minúsculas — mas as redes
+// sociais de membro (types/member.ts) vêm do Supabase com o `platform`
+// capitalizado (ex.: "Instagram", "LinkedIn", "Email"), enquanto links de
+// jogo/estúdio continuam minúsculos ("instagram", "itch.io"). Normalizamos
+// pra minúsculo só na hora de CONSULTAR os dois mapas — `platformKey` acima
+// continua com a capitalização original pra exibição (label/tooltip).
+const platformSlug = computed(() => platformKey.value?.toLowerCase() ?? "");
+
 //// Platform config (falls back gracefully for unmapped slugs)
-const config = computed(() => LINK_PLATFORMS[platformKey.value]);
+const config = computed(() => LINK_PLATFORMS[platformSlug.value]);
 const color = computed(() => config.value?.color || "#3a3a3c");
 const label = computed(
   () => props.link.label || config.value?.label || toLabel(platformKey.value),
@@ -27,9 +35,15 @@ const label = computed(
 // genérico configurado em LINK_PLATFORMS (ex.: e-mail, site) > fallback
 // genérico (Link2). Nunca cai pro fallback quando existe um ícone
 // específico pra essa plataforma.
-const brandIconPath = computed(() => BRAND_ICONS[platformKey.value]);
+const brandIconPath = computed(() => BRAND_ICONS[platformSlug.value]);
 const hasBrandIcon = computed(() => !!brandIconPath.value);
 const fallbackIconName = computed(() => config.value?.icon || "Link2");
+
+// E-mail (`platform: "Email"`, `url: "mailto:..."`) não é uma rede social
+// comum: não deve abrir em nova aba como um site normal — só disparar o
+// cliente de e-mail padrão do usuário, comportamento nativo do navegador
+// pra links `mailto:` quando não forçamos `target="_blank"`.
+const isEmail = computed(() => platformSlug.value === "email");
 
 function getIcon(name: string): any {
   return icons[name as keyof typeof icons];
@@ -39,8 +53,7 @@ function getIcon(name: string): any {
 <template>
   <a
     :href="link.url"
-    target="_blank"
-    rel="noopener noreferrer"
+    v-bind="isEmail ? {} : { target: '_blank', rel: 'noopener noreferrer' }"
     class="link-badge group/link relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-transform duration-300 ease-out hover:-translate-y-1 hover:scale-110 active:scale-95"
     :style="{ '--badge-color': color }"
   >

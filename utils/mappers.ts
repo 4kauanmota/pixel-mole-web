@@ -126,9 +126,20 @@ export function mapMember(api: any, allGames: Game[]): Member {
     nick: api.nick,
     description: api.description,
     defaultRole: api.default_role,
-    // `member_socials` já retorna { platform, url } diretamente, igual
-    // `game_links` — mas também pode vir ausente/null, daí o fallback.
-    socials: api.socials ?? [],
+    // `socials` é uma coluna jsonb direto em `members` (array de
+    // { platform, url }, mesmo formato de `game_links`/`studio.socials`) —
+    // pode vir `null` (nunca preenchida) ou com alguma entrada incompleta
+    // (edição manual direto no banco). O filter descarta entradas sem
+    // `platform`/`url` válidos em vez de deixar um link quebrado aparecer,
+    // mesmo espírito do filter já usado em fetchStudio (utils/studio.ts).
+    socials: (api.socials ?? []).filter(
+      (s: any) =>
+        s &&
+        typeof s.platform === "string" &&
+        s.platform &&
+        typeof s.url === "string" &&
+        s.url,
+    ),
     games: allGames
       .filter((game) => roleByGameId.has(game.id))
       .map((game) => ({

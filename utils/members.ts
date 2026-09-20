@@ -14,10 +14,12 @@ export async function fetchAllMembers(supabase: any): Promise<MemberSummary[]> {
   // Pedir uma coluna inexistente faz a query INTEIRA falhar (erro
   // "column does not exist"), o que já aconteceu aqui antes e deixava a
   // grade vazia sem nenhum aviso visível.
+  // Ordem sempre pelo `id` (crescente) — pedido explícito do usuário, nunca
+  // por nome/data de criação/qualquer outro campo.
   const { data, error } = await supabase
     .from("members")
     .select("id, name, nick, default_role")
-    .order("name");
+    .order("id", { ascending: true });
 
   if (error) {
     console.error("[Supabase] Erro ao buscar members:", error);

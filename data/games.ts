@@ -60,6 +60,11 @@ export const LINK_PLATFORMS: Record<
   twitch: { label: "Twitch", color: "#9146ff" },
   linkedin: { label: "LinkedIn", color: "#0a66c2" },
   gmail: { label: "E-mail", color: "#3a3a3c", icon: "Mail" },
+  // Plataforma "Email" das redes sociais de membro (ver
+  // types/member.ts/MemberSocial) — mesmo tratamento de "gmail" acima
+  // (ícone genérico de e-mail, sem ícone de marca), só com a chave que
+  // realmente vem gravada no Supabase pra esse campo.
+  email: { label: "E-mail", color: "#3a3a3c", icon: "Mail" },
   website: { label: "Site", color: "#3a3a3c", icon: "Globe" },
 };
 

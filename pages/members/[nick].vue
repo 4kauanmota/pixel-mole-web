@@ -42,7 +42,6 @@ async function getMember(): Promise<void> {
       .select(
         `
       *,
-      socials:member_socials(platform, url),
       game_members(
         role_in_game,
         game:games(id)
@@ -55,12 +54,13 @@ async function getMember(): Promise<void> {
   ]);
 
   if (error) {
-    // Causas mais comuns pra esse erro especificamente nos embeds
-    // ("socials"/"game_members"): falta a foreign key entre a tabela e
+    // `socials` agora é uma coluna jsonb direto em `members` (já vem no
+    // `*` acima, sem embed) — não é mais uma causa possível deste erro.
+    // Causa mais comum restante: falta a foreign key entre `game_members` e
     // `members`/`games` (o PostgREST precisa dela pra resolver o embed), ou
     // RLS habilitado sem policy de SELECT pra role anon/public.
     console.error(
-      "[Supabase] Erro ao buscar member (se a mensagem mencionar 'member_socials', 'game_members' ou 'relationship', confira a foreign key e as policies de RLS dessas tabelas):",
+      "[Supabase] Erro ao buscar member (se a mensagem mencionar 'game_members' ou 'relationship', confira a foreign key e as policies de RLS dessa tabela):",
       error,
     );
   }
@@ -96,13 +96,16 @@ onMounted(async () => {
 // que em tamanho "lg" (mesmo padrão que a tag já usava aqui).
 
 // Resumo das atuações do membro nos jogos do estúdio: agrupa
-// member.games[].roleInGame, contando quantas vezes cada cargo se repete
-// (ex.: "Programador · 3x") em vez de listar cada jogo separadamente.
-// Ordenado do cargo mais recorrente pro menos recorrente. Agrupamos pelo
-// texto já resolvido no idioma atual (localize()) — roleInGame pode vir
+// member.games[].roleInGame, sem repetir o mesmo cargo pra cada jogo em que
+// ele aparece. Ordenado do cargo mais recorrente pro menos recorrente (a
+// contagem em si não é mais exibida — só usada aqui pra ordenar). Agrupamos
+// pelo texto já resolvido no idioma atual (localize()) — roleInGame pode vir
 // como objeto multilíngue (jsonb) ou string simples (campo ainda não
 // migrado), e objetos com o mesmo conteúdo têm referências diferentes, então
-// não dá pra usá-los direto como chave do Map.
+// não dá pra usá-los direto como chave do Map. Nenhum tratamento visual
+// (toLabel(), capitalização, troca de "_") é aplicado — o texto sai
+// exatamente como está gravado no banco (só resolvido pro idioma atual),
+// pedido explícito do usuário.
 const roleSummary = computed(() => {
   const counts = new Map<string, number>();
   for (const game of member.value?.games ?? []) {
@@ -230,11 +233,15 @@ const roleSummary = computed(() => {
 
           <!-- Atuações: resumo visual de todas as funções que o membro já
                exerceu nos jogos do estúdio, agregadas por cargo (ver
-               roleSummary) — mesmo cargo em vários jogos vira "Cargo · Nx"
-               em vez de se repetir. Mesmo padrão de divisória/título dos
-               outros blocos deste container, com as mesmas tags outlined
-               amarelas já usadas pra cargo (não usa a cor roxa, que é
-               exclusiva das tags de cargo GERAL do membro logo acima). -->
+               roleSummary) — mesmo cargo em vários jogos aparece uma única
+               vez, sem contagem. Texto exibido EXATAMENTE como resolvido
+               pelo idioma atual (localize()), sem nenhum tratamento
+               adicional (sem toLabel(), sem capitalização, sem troca de
+               "_" por espaço) — pedido explícito do usuário. Mesmo padrão
+               de divisória/título dos outros blocos deste container, com
+               as mesmas tags outlined amarelas já usadas pra cargo (não
+               usa a cor roxa, que é exclusiva das tags de cargo GERAL do
+               membro logo acima). -->
           <div v-if="roleSummary.length" class="mt-8 border-t border-border-subtle pt-6">
             <h2 class="eyebrow mb-3">
               {{ $t("members.roles") }}
@@ -243,7 +250,7 @@ const roleSummary = computed(() => {
               <Tag
                 v-for="entry in roleSummary"
                 :key="entry.role"
-                :name="`${entry.role} · ${entry.count}x`"
+                :name="entry.role"
                 color="var(--accent)"
                 variant="outlined"
                 icon="User"

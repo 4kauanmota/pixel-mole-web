@@ -15,15 +15,15 @@ const { t } = useI18n();
 </script>
 
 <template>
-  <section class="mt-16 sm:mt-24 lg:mt-28">
+  <section class="mt-12 sm:mt-16 lg:mt-20">
     <div
       v-reveal
-      class="mb-8 flex flex-wrap items-end justify-between gap-4 sm:mb-10"
+      class="mb-6 flex flex-wrap items-end justify-between gap-4 sm:mb-8"
     >
       <div>
         <span class="eyebrow text-accent">{{ t("home.team.eyebrow") }}</span>
         <h2
-          class="mt-2 font-display text-3xl font-bold tracking-tight text-content-primary sm:text-4xl"
+          class="mt-2 font-display text-2xl font-bold tracking-tight text-content-primary sm:text-3xl"
         >
           {{ t("home.team.title") }}
         </h2>

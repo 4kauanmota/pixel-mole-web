@@ -16,6 +16,7 @@ const props = defineProps<{
 }>();
 
 const { t } = useI18n();
+const { localize } = useLocalizedText();
 
 const labelKeys: Record<string, string> = {
   recent: "home.highlights.recent",
@@ -26,11 +27,11 @@ const labelKeys: Record<string, string> = {
 // Mesma regra de Card.vue: jogos "coming_soon" têm página própria; os
 // outros tipos usam o GameModal reutilizável.
 function hasOwnPage(game: Game): boolean {
-  return game.type.name === "coming_soon";
+  return game.type.slug === "coming_soon";
 }
 function gameHref(game: Game): string {
   return hasOwnPage(game)
-    ? `/game/${game.name.toLowerCase().replace(/\s+/g, "-")}`
+    ? `/game/${stableText(game.name).toLowerCase().replace(/\s+/g, "-")}`
     : "";
 }
 
@@ -53,9 +54,14 @@ function handleClick(game: Game, e: Event) {
 </script>
 
 <template>
-  <section v-if="items.length" class="mt-16 sm:mt-24 lg:mt-28">
+  <!-- Nenhum tile aqui usa `vh`/`100vh` (nem em qualquer breakpoint): a
+       altura vem de `aspect-*` (proporção fixa em relação à LARGURA, que já
+       é limitada pelo grid) + padding do próprio conteúdo — nunca da altura
+       da viewport. `aspect-[21/9]` (mais "baixo"/panorâmico que os
+       16/10 de antes) reduz a altura da imagem sem tirar o destaque dela. -->
+  <section v-if="items.length" class="mt-12 sm:mt-16 lg:mt-20">
     <div
-      class="grid grid-cols-1 gap-5"
+      class="grid grid-cols-1 gap-4 sm:gap-5"
       :class="[
         items.length >= 2 ? 'sm:grid-cols-2' : '',
         items.length === 3 ? 'lg:grid-cols-3' : '',
@@ -65,21 +71,21 @@ function handleClick(game: Game, e: Event) {
         v-for="item in items"
         :key="item.key"
         :to="gameHref(item.game)"
-        class="group relative block aspect-[16/10] overflow-hidden rounded-panel border border-border-subtle shadow-lg shadow-black/20 transition-transform duration-300 hover:-translate-y-1"
+        class="group relative block aspect-[21/9] overflow-hidden rounded-panel border border-border-subtle shadow-lg shadow-black/20 transition-transform duration-300 hover:-translate-y-1"
         @click="handleClick(item.game, $event)"
       >
         <img
           :src="item.game.thumbnail"
-          :alt="item.game.name"
+          :alt="localize(item.game.name)"
           class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <div
           class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent"
         />
-        <div class="absolute inset-0 flex flex-col justify-end gap-1.5 p-5 sm:p-6">
+        <div class="absolute inset-0 flex flex-col justify-end gap-1 p-4 sm:p-5">
           <span class="eyebrow text-accent">{{ t(labelKeys[item.key]) }}</span>
-          <h3 class="font-display text-xl font-bold text-white sm:text-2xl">
-            {{ item.game.name }}
+          <h3 class="font-display text-lg font-bold text-white sm:text-xl">
+            {{ localize(item.game.name) }}
           </h3>
         </div>
       </NuxtLink>

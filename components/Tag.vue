@@ -1,27 +1,25 @@
 <script setup lang="ts">
 //// Imports
 import * as icons from "lucide-vue-next";
+import type { LocalizedText } from "~/types/i18n";
 
 //// Props
 const props = defineProps<{
-  name: string;
+  // Aceita tanto o formato multilíngue novo vindo do Supabase (jsonb
+  // { pt, en }) quanto uma string simples (campos ainda não migrados, ou
+  // texto já resolvido/montado pelo próprio componente-pai — ver
+  // roleSummary em pages/members/[nick].vue). Sempre resolvido pro idioma
+  // atual via useLocalizedText() (ver `displayText` abaixo). Substitui as
+  // antigas props `raw`/`kind` (useCatalogLabel): agora qualquer texto
+  // passado aqui já sai pronto para exibição, sem tratamento adicional
+  // neste componente.
+  name: LocalizedText | string;
   color: string;
   icon?: string;
   variant?: "filled" | "outlined";
   // "sm" é o padrão (usado nos cards da grade). "lg" é usado no modal de
   // detalhes, onde as tags precisam de mais presença visual/leitura.
   size?: "sm" | "lg";
-  // Quando true, exibe `name` exatamente como recebido, sem passar pelo
-  // toLabel()/catálogo de tradução. Necessário para valores livres digitados
-  // por humanos (ex.: o cargo de um membro num jogo), que não seguem o
-  // padrão snake_case dos enums do banco e não devem ser reformatados nem
-  // procurados no catálogo.
-  raw?: boolean;
-  // Qual catálogo de tradução usar pra `name` (ver useCatalogLabel) — tipos
-  // de jogo (coming_soon, game_jam...) e tags de gênero (romance,
-  // adventure...) vivem em namespaces diferentes no i18n. Ignorado quando
-  // `raw` é true.
-  kind?: "tags" | "types";
   // Usado só nas tags selecionadas como filtro (pages/index.vue): no hover,
   // sinaliza que o clique vai remover aquele filtro — fundo vermelho
   // translúcido + um "X" ao final do texto. Não muda o clique em si (quem
@@ -30,13 +28,34 @@ const props = defineProps<{
   // Tag (cards, modal, dropdowns) passa essa prop, então o estilo fica
   // restrito a esse uso.
   removable?: boolean;
+  // Opt-in: quando true, o texto pode quebrar em várias linhas em vez de
+  // truncar numa só (ver MemberCard.vue, cargo default_role — texto que
+  // NUNCA pode ficar cortado/escondido). Sem essa prop (padrão = false), o
+  // comportamento é EXATAMENTE o de sempre (truncate + pill arredondada) —
+  // nenhum outro uso da Tag no site é afetado. Uma pill totalmente
+  // arredondada não fica bem com texto em 2+ linhas (vira uma "cápsula"
+  // esticada), então junto da quebra de linha a forma também muda pra um
+  // badge com cantos menos arredondados (rounded-lg) e alinhamento pelo
+  // topo (items-start), em vez de centralizado.
+  wrap?: boolean;
+  // Opt-in: reaplica o tratamento que existia antes da migração pra jsonb
+  // (ver utils/formatters.ts -> toLabel()) sobre o texto JÁ localizado —
+  // troca "_" por espaço e capitaliza só a primeira letra (ex.:
+  // "visual_novel" -> "Visual novel"). A tradução continua funcionando
+  // normalmente (localize() roda primeiro, sempre); isso só arruma a
+  // formatação de valores que ainda vêm com underscore do Supabase.
+  // Usado nas tags de gênero (game.tags) e no badge de tipo (game.type) —
+  // pedido explícito do usuário, nos dois casos. Sem essa prop (padrão =
+  // false), nenhum outro uso da Tag no site é afetado.
+  formatSlug?: boolean;
 }>();
 
-const { label } = useCatalogLabel();
+const { localize } = useLocalizedText();
 
-const displayText = computed(() =>
-  props.raw ? props.name : label(props.kind ?? "tags", props.name),
-);
+const displayText = computed(() => {
+  const text = localize(props.name);
+  return props.formatSlug ? toLabel(text) : text;
+});
 
 //// Utils
 function getIcon(name?: string): any {
@@ -104,8 +123,12 @@ const iconSize = computed(() => (props.size === "lg" ? 18 : 16));
        então SIM declarar `cursor-pointer` explicitamente na própria classe
        — o que não quebra esse mecanismo, só deixa de depender dele. -->
   <span
-    class="flex max-w-full items-center rounded-full"
-    :class="[sizeClasses, removable && removableClasses]"
+    class="flex max-w-full"
+    :class="[
+      sizeClasses,
+      removable && removableClasses,
+      wrap ? 'items-start rounded-lg' : 'items-center rounded-full',
+    ]"
     :style="style"
   >
     <component
@@ -114,7 +137,7 @@ const iconSize = computed(() => (props.size === "lg" ? 18 : 16));
       :size="iconSize"
       class="shrink-0"
     />
-    <span class="min-w-0 truncate">{{ displayText }}</span>
+    <span class="min-w-0" :class="wrap ? 'whitespace-normal break-words' : 'truncate'">{{ displayText }}</span>
     <!-- Sempre renderizado (não v-if em cima do hover) e só com a opacidade
          animada: assim o espaço do "X" já fica reservado desde o início e
          a tag não muda de tamanho/empurra as vizinhas ao passar o mouse. -->

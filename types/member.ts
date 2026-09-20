@@ -1,4 +1,5 @@
 import type { Game } from "./game";
+import type { LocalizedText } from "./i18n";
 
 // Rede social de um membro (Discord, Instagram, site pessoal etc). Usa o
 // mesmo formato de `GameLink` (plataforma + url opcionalmente com label),
@@ -14,7 +15,7 @@ export interface MemberSocial {
 // *naquele* jogo — que pode ser diferente do cargo geral dele no estúdio
 // (ex.: cargo geral "Game Designer", mas atuou como "Programador" na REmemory).
 export interface MemberGame extends Game {
-  roleInGame: string;
+  roleInGame: LocalizedText | string;
 }
 
 // Membro do estúdio, com todos os dados usados na página individual
@@ -27,8 +28,8 @@ export interface Member {
   id: number;
   name: string;
   nick: string;
-  description: string;
-  defaultRole: string;
+  description: LocalizedText | string;
+  defaultRole: LocalizedText | string;
   socials: MemberSocial[];
   games: MemberGame[];
 }
@@ -40,5 +41,5 @@ export interface MemberSummary {
   id: number;
   name: string;
   nick: string;
-  defaultRole: string;
+  defaultRole: LocalizedText | string;
 }

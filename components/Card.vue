@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import * as icons from "lucide-vue-next";
 import type { Game } from "~/types/game";
+import type { LocalizedText } from "~/types/i18n";
 const props = defineProps<{
   game: Game;
   // Cargo específico que um membro exerceu *neste* jogo (ex.: "Programador").
@@ -9,15 +10,17 @@ const props = defineProps<{
   // que a pessoa atuou. É só uma informação COMPLEMENTAR — o card continua
   // sendo o card de jogo de sempre, com todas as informações normais
   // (thumbnail, tipo, descrição, tags de gênero) intactas.
-  roleLabel?: string;
+  roleLabel?: LocalizedText | string;
 }>();
+const { localize } = useLocalizedText();
 const hovered = ref(false);
 const modalOpen = ref(false);
 
 // Jogos maiores ("coming_soon") vão ganhar uma página própria futuramente.
 // Todos os outros tipos (ex.: game_jam) são jogos menores e usam o
-// GameModal reutilizável para exibir os detalhes.
-const hasOwnPage = computed(() => props.game.type.name === "coming_soon");
+// GameModal reutilizável para exibir os detalhes. `slug` é o identificador
+// estável (nunca traduzido) — ver types/game.ts.
+const hasOwnPage = computed(() => props.game.type.slug === "coming_soon");
 
 function handleClick(e: Event) {
   if (!hasOwnPage.value) {
@@ -31,7 +34,7 @@ function handleClick(e: Event) {
   <NuxtLink
     :to="
       hasOwnPage
-        ? `/game/${game.name.toLowerCase().replace(/\s+/g, '-')}`
+        ? `/game/${stableText(game.name).toLowerCase().replace(/\s+/g, '-')}`
         : ''
     "
     class="z-50 block h-full"
@@ -53,7 +56,7 @@ function handleClick(e: Event) {
         <div class="relative aspect-[16/10] w-full overflow-hidden">
           <img
             :src="game.thumbnail"
-            :alt="game.name"
+            :alt="localize(game.name)"
             class="h-full w-full object-cover transition-transform duration-500"
             :class="{ 'scale-110': hovered }"
           />
@@ -61,22 +64,22 @@ function handleClick(e: Event) {
             class="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/55 via-black/0 to-black/0"
           />
           <Tag
-            :key="game.type.name"
+            :key="game.type.slug"
             :name="game.type.name"
             :color="game.type.color"
-            kind="types"
             variant="outlined"
+            format-slug
             class="absolute left-3 top-3 !bg-black/55 backdrop-blur-sm"
           />
         </div>
 
         <div class="flex flex-1 flex-col gap-3 p-4 sm:p-5">
           <h2 class="line-clamp-1 text-lg font-bold text-content-primary sm:text-xl">
-            {{ game.name }}
+            {{ localize(game.name) }}
           </h2>
 
           <p class="line-clamp-2 text-sm leading-relaxed text-content-secondary">
-            {{ game.description }}
+            {{ localize(game.description) }}
           </p>
 
           <!-- Cargo do membro NESTE jogo (só na página de um membro, via
@@ -93,7 +96,7 @@ function handleClick(e: Event) {
               :size="14"
               class="shrink-0 text-accent"
             />
-            <span class="truncate">{{ roleLabel }}</span>
+            <span class="truncate">{{ localize(roleLabel) }}</span>
           </div>
 
           <!-- Tags do jogo (gênero/tema): mesmo padrão "filled" (cor sólida
@@ -108,11 +111,11 @@ function handleClick(e: Event) {
           >
             <Tag
               v-for="tag in game.tags"
-              :key="tag.name"
+              :key="tag.slug"
               :name="tag.name"
               :color="tag.color"
               :icon="tag.icon"
-              kind="tags"
+              format-slug
             />
           </div>
         </div>

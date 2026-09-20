@@ -1,15 +1,20 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue";
 import * as icons from "lucide-vue-next";
+import type { LocalizedText } from "~/types/i18n";
 
 const props = defineProps<{
+  // `modelValue` guarda os SLUGS selecionados (estável, nunca traduzido) —
+  // nunca `name` (que pode ser multilíngue). `name` só é usado pra exibição,
+  // via useLocalizedText(). Bate com o formato de Tag[] (types/game.ts), que
+  // é o único uso hoje (filtro de tags em pages/games.vue).
   modelValue: string[];
-  options: { name: string; icon?: string }[];
+  options: { slug: string; name: LocalizedText | string; icon?: string }[];
 }>();
 const emit = defineEmits(["update:modelValue"]);
 
 const { t } = useI18n();
-const { label } = useCatalogLabel();
+const { localize } = useLocalizedText();
 const open = ref(false);
 const container = ref<HTMLElement>();
 
@@ -71,19 +76,19 @@ function toggle(value: string) {
       >
         <div
           v-for="opt in options"
-          :key="opt.name"
+          :key="opt.slug"
           class="flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors"
           :class="
-            modelValue.includes(opt.name)
+            modelValue.includes(opt.slug)
               ? 'bg-pm-yellow hover:opacity-90'
               : 'hover:bg-surface-hover'
           "
-          @click="toggle(opt.name)"
+          @click="toggle(opt.slug)"
         >
           <span
             class="w-4 h-4 rounded border flex items-center justify-center text-xs"
             :class="
-              modelValue.includes(opt.name)
+              modelValue.includes(opt.slug)
                 ? 'bg-pm-dark border-pm-dark text-pm-yellow'
                 : 'border-border-strong text-transparent'
             "
@@ -95,17 +100,17 @@ function toggle(value: string) {
             :size="16"
             class="shrink-0"
             :class="
-              modelValue.includes(opt.name) ? 'text-pm-dark' : 'text-content-muted'
+              modelValue.includes(opt.slug) ? 'text-pm-dark' : 'text-content-muted'
             "
           />
           <span
             :class="
-              modelValue.includes(opt.name)
+              modelValue.includes(opt.slug)
                 ? 'text-pm-dark font-medium'
                 : 'text-content-primary'
             "
           >
-            {{ label("tags", opt.name) }}
+            {{ toLabel(localize(opt.name)) }}
           </span>
         </div>
       </div>

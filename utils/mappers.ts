@@ -1,5 +1,35 @@
-import type { Game } from "~/types/game";
+import type { Game, Tag, Type } from "~/types/game";
 import type { Member, MemberSummary } from "~/types/member";
+import type { LocalizedText } from "~/types/i18n";
+import { stableText } from "~/utils/localizedText";
+
+// `game_types`/`tags` ainda não têm uma coluna `slug` própria no Supabase
+// (a migração rodada até agora só converteu `name` pra jsonb) — sem isso,
+// `type.slug`/`tag.slug` viriam sempre `undefined`, quebrando tanto o
+// roteamento de "coming_soon" (Card.vue/HomeHero.vue/HomeSpotlight.vue/
+// HomeHighlights.vue/utils/games.ts) quanto a identidade das opções nos
+// filtros (Select.vue/MultiSelect.vue/pages/games.vue). Enquanto isso,
+// derivamos um slug ESTÁVEL a partir de `name.en` (ver stableText, que
+// prioriza esse idioma exatamente pela convenção observada nos dados reais:
+// `name.en` guarda o valor técnico tipo "coming_soon", `name.pt` só a
+// tradução visível). Se um dia existir uma coluna `slug` real no banco, ela
+// automaticamente tem prioridade (`raw.slug ?? stableText(raw.name)`) — não
+// precisa mexer aqui de novo.
+export function normalizeType(raw: any): Type | null {
+  if (!raw) return null;
+  return {
+    ...raw,
+    slug: raw.slug ?? stableText(raw.name),
+  };
+}
+
+export function normalizeTag(raw: any): Tag | null {
+  if (!raw) return null;
+  return {
+    ...raw,
+    slug: raw.slug ?? stableText(raw.name),
+  };
+}
 
 export function mapGame(api: any): Game {
   return {
@@ -23,16 +53,20 @@ export function mapGame(api: any): Game {
     screenshots: api.screenshots ?? [],
     // `game_types(*)` é muitos-pra-um — na prática sempre resolve (todo
     // jogo tem um type_id), mas se algum dia vier nulo (FK quebrada), cai
-    // num tipo neutro em vez de deixar `game.type.name`/`.color` explodir
-    // em todo lugar que lê isso (Card.vue, GameModal.vue,
-    // getFeaturedGame em utils/games.ts...).
-    type: api.type ?? { name: "", color: "#3a3a3c" },
+    // num tipo neutro em vez de deixar `game.type.slug`/`.name`/`.color`
+    // explodir em todo lugar que lê isso (Card.vue, GameModal.vue,
+    // getFeaturedGame em utils/games.ts...). `slug: ""` nunca bate com
+    // nenhuma comparação real (ex.: `=== "coming_soon"`), então o jogo cai
+    // no comportamento padrão (modal) em vez de quebrar a navegação.
+    type: normalizeType(api.type) ?? { slug: "", name: "", color: "#3a3a3c" },
     // `api.tags` pode vir `null` igual `screenshots` (sem fallback aqui
     // antes, `.map` num `null` quebraria igual); e mesmo vindo como array,
     // uma linha de `game_tags` cuja tag foi apagada resolve `t.tag` como
     // `null` — o `.filter(Boolean)` descarta essas linhas órfãs (mesmo
     // espírito do filter já usado abaixo para `members`).
-    tags: (api.tags ?? []).map((t: any) => t.tag).filter(Boolean),
+    tags: (api.tags ?? [])
+      .map((t: any) => normalizeTag(t.tag))
+      .filter(Boolean),
     // A tabela `game_links` já retorna { platform, url } diretamente (não
     // precisa de "unwrap" como as tags), mas pode vir ausente/null caso a
     // query não peça o relacionamento — por isso o fallback para [].
@@ -81,7 +115,7 @@ export function mapMember(api: any, allGames: Game[]): Member {
   // dados completos do jogo (thumbnail, tags, links, créditos etc.) vêm de
   // `allGames`, garantindo que sejam exatamente os mesmos exibidos na
   // página de Games para aquele jogo.
-  const roleByGameId = new Map<number, string>();
+  const roleByGameId = new Map<number, LocalizedText | string>();
   for (const gm of api.game_members ?? []) {
     if (gm.game) roleByGameId.set(gm.game.id, gm.role_in_game);
   }

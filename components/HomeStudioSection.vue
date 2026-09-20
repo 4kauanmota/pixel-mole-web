@@ -15,12 +15,12 @@ const { t } = useI18n();
 <template>
   <section
     v-reveal
-    class="mt-16 grid grid-cols-1 items-center gap-10 rounded-panel border border-border-subtle bg-surface-panel p-6 sm:mt-24 sm:p-8 lg:mt-28 lg:grid-cols-[1.2fr_1fr] lg:gap-16 lg:p-12"
+    class="mt-12 grid grid-cols-1 items-center gap-8 rounded-panel border border-border-subtle bg-surface-panel p-5 sm:mt-16 sm:p-6 lg:mt-20 lg:grid-cols-[1.2fr_1fr] lg:gap-12 lg:p-8"
   >
-    <div class="flex flex-col gap-5">
+    <div class="flex flex-col gap-4">
       <span class="eyebrow text-accent">{{ t("home.studio.eyebrow") }}</span>
       <h2
-        class="font-display text-3xl font-bold tracking-tight text-content-primary sm:text-4xl"
+        class="font-display text-2xl font-bold tracking-tight text-content-primary sm:text-3xl"
       >
         {{ t("home.studio.title") }}
       </h2>
@@ -29,11 +29,11 @@ const { t } = useI18n();
       </p>
     </div>
 
-    <div class="grid grid-cols-2 gap-4 sm:gap-6">
+    <div class="grid grid-cols-2 gap-4 sm:gap-5">
       <div
-        class="rounded-panel border border-border-subtle bg-surface-card p-6 text-center sm:p-8"
+        class="rounded-panel border border-border-subtle bg-surface-card p-5 text-center sm:p-6"
       >
-        <p class="font-display text-4xl font-bold text-accent sm:text-5xl">
+        <p class="font-display text-3xl font-bold text-accent sm:text-4xl">
           {{ gameCount }}
         </p>
         <p class="mt-2 text-sm text-content-muted sm:text-base">
@@ -41,9 +41,9 @@ const { t } = useI18n();
         </p>
       </div>
       <div
-        class="rounded-panel border border-border-subtle bg-surface-card p-6 text-center sm:p-8"
+        class="rounded-panel border border-border-subtle bg-surface-card p-5 text-center sm:p-6"
       >
-        <p class="font-display text-4xl font-bold text-accent sm:text-5xl">
+        <p class="font-display text-3xl font-bold text-accent sm:text-4xl">
           {{ memberCount }}
         </p>
         <p class="mt-2 text-sm text-content-muted sm:text-base">

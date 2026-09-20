@@ -48,7 +48,7 @@ export async function fetchAllGames(supabase: any): Promise<Game[]> {
 // (nem de "lançamento", nem de "criado em"), então não dá pra ordenar por
 // "mais recente"/"mais próximo de sair" de verdade. Critério combinado, do
 // mais forte pro mais fraco:
-//   1. Jogos com type.name === "coming_soon" (o próximo lançamento do
+//   1. Jogos com type.slug === "coming_soon" (o próximo lançamento do
 //      estúdio) têm prioridade sobre qualquer outro tipo.
 //   2. Dentro do grupo escolhido (coming_soon, ou todos os jogos se não
 //      houver nenhum coming_soon), o de maior `id` — aproximação razoável
@@ -57,7 +57,7 @@ export async function fetchAllGames(supabase: any): Promise<Game[]> {
 export function getFeaturedGame(games: Game[]): Game | null {
   if (!games.length) return null;
 
-  const comingSoon = games.filter((game) => game.type.name === "coming_soon");
+  const comingSoon = games.filter((game) => game.type.slug === "coming_soon");
   const pool = comingSoon.length ? comingSoon : games;
 
   return pool.reduce((newest, game) => (game.id > newest.id ? game : newest));

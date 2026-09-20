@@ -68,7 +68,7 @@ const highlightItems = computed(() => {
   }
 
   const inDev = byRecency.find(
-    (game) => !used.has(game.id) && game.type.name === "coming_soon",
+    (game) => !used.has(game.id) && game.type.slug === "coming_soon",
   );
   if (inDev) {
     items.push({ key: "inDev", game: inDev });
@@ -124,7 +124,12 @@ function logSectionError(section: string) {
 <template>
   <NavBar />
 
-  <AppLoader v-if="isLoading" />
+  <!-- Mensagem própria da Home (não a genérica "Carregando jogos", que era
+       imprecisa aqui — a Home carrega jogos E equipe E o registro do
+       estúdio). `AppLoader` já aceita `message` como prop opcional; outras
+       páginas (jogos/membros) continuam com o texto padrão/próprio delas,
+       sem nenhuma mudança. -->
+  <AppLoader v-if="isLoading" :message="$t('loading.home')" />
 
   <template v-else>
     <!-- Cada seção da home fica isolada num <NuxtErrorBoundary> próprio: se
@@ -136,17 +141,25 @@ function logSectionError(section: string) {
          mappers/componentes) — ver utils/mappers.ts, GameGallery.vue,
          GameCredits.vue, useContrastColor.ts. -->
 
-    <!-- Hero fora do <Container>: de propósito, pra ocupar a largura
-         inteira da viewport (arte do jogo em destaque de fundo) — as demais
-         seções ficam dentro do <Container> de sempre, junto do resto do
-         site. -->
-    <NuxtErrorBoundary @error="logSectionError('Hero')">
-      <HomeHero :game="featuredGame" />
-      <template #error></template>
-    </NuxtErrorBoundary>
+    <!-- HomeHero foi removido por pedido explícito do usuário (o bloco
+         full-bleed do jogo em destaque, com imagem/tag/descrição/botão, não
+         deve mais aparecer na Home). O componente `components/HomeHero.vue`
+         continua existindo no projeto, só não é mais renderizado aqui —
+         não apagamos o arquivo porque este ambiente não tem permissão pra
+         excluir arquivos na pasta do usuário. -->
 
     <Container>
-      <main>
+      <!-- `[&>section:first-child]:!mt-0`: cada seção abaixo tem seu próprio
+           `mt-12 sm:mt-16 lg:mt-20` (pensado pra abrir espaço a partir da
+           seção ANTERIOR, antes o Hero). Sem essa regra, a primeira seção
+           visível (Em destaque, ou a próxima que tiver conteúdo) herdaria
+           essa margem como se ainda houvesse algo acima dela, abrindo um
+           vazio logo abaixo da navbar — exatamente o que remover o Hero
+           devia evitar. `:first-child` sempre aponta pra seção que está
+           efetivamente renderizada primeiro (as demais têm v-if próprio),
+           então isso se ajusta sozinho não importa qual seção "sobra" como
+           primeira. Nenhuma seção teve seu próprio espaçamento alterado. -->
+      <main class="[&>section:first-child]:!mt-0">
         <NuxtErrorBoundary
           v-if="featuredGame"
           @error="logSectionError('Em destaque')"

@@ -1,10 +1,24 @@
+import type { LocalizedText } from "./i18n";
+
 export interface Type {
-  name: string;
+  // Slug estável (plain text, NUNCA traduzido) usado como IDENTIFICADOR em
+  // toda a lógica de negócio do app — ex.: `type.slug === "coming_soon"`
+  // decide se um jogo ganha página própria ou abre em modal (ver
+  // Card.vue/HomeHero.vue/HomeSpotlight.vue/HomeHighlights.vue/
+  // utils/games.ts/pages/games.vue/pages/index.vue). `name` é só o RÓTULO
+  // exibido (multilíngue) — nunca deve entrar em comparação/lógica.
+  slug: string;
+  name: LocalizedText | string;
   color: string;
 }
 
 export interface Tag {
-  name: string;
+  // Mesmo motivo/uso de Type.slug acima: `tag.name` também é usado como
+  // identificador (seleção de filtro em MultiSelect.vue, comparação de
+  // tags selecionadas em pages/games.vue) — precisa de um slug estável e
+  // nunca traduzido, separado do rótulo exibido.
+  slug: string;
+  name: LocalizedText | string;
   icon: string;
   color: string;
 }
@@ -28,7 +42,7 @@ export interface GameLink {
 export interface GameMember {
   nick: string;
   name: string;
-  roleInGame: string;
+  roleInGame: LocalizedText | string;
 }
 
 export interface Game {
@@ -37,8 +51,8 @@ export interface Game {
   // efetivamente usado em código (filtrar/ordenar jogos por id — ver
   // fetchAllGames em utils/games.ts e mapMember em utils/mappers.ts).
   id: number;
-  name: string;
-  description: string;
+  name: LocalizedText | string;
+  description: LocalizedText | string;
   thumbnail: string;
   screenshots: string[];
   type: Type;

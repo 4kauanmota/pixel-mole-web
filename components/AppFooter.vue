@@ -1,51 +1,23 @@
 <script setup lang="ts">
 //// Imports
 import * as icons from "lucide-vue-next";
-import { BRAND_ICONS } from "@/data/brandIcons";
 
 const { t } = useI18n();
 const year = new Date().getFullYear();
 
-//// Redes sociais do estúdio. Ícone neutro em repouso — no hover, o círculo
-// se preenche com a cor característica da própria plataforma (ver
-// `--brand-color`/`--brand-ink` no <style> abaixo), então a pessoa percebe
-// visualmente que aquele ícone é interativo sem precisar de mais nenhum
-// efeito. Site oficial usa a cor de destaque do próprio estúdio (não é uma
-// "marca" externa como as outras três).
-const socials = [
-  {
-    key: "website",
-    href: "https://pixelmole.com.br",
-    label: "pixelmole.com.br",
-    icon: "Globe",
-    brandColor: "var(--pm-yellow)",
-    inkColor: "var(--pm-dark)",
-  },
-  {
-    key: "youtube",
-    href: "https://www.youtube.com/@PixelMole",
-    label: "@PixelMole",
-    iconPath: BRAND_ICONS.youtube,
-    brandColor: "#ff0000",
-    inkColor: "#ffffff",
-  },
-  {
-    key: "instagram",
-    href: "https://www.instagram.com/pixelmole.studio",
-    label: "@pixelmole.studio",
-    iconPath: BRAND_ICONS.instagram,
-    brandColor: "#e4405f",
-    inkColor: "#ffffff",
-  },
-  {
-    key: "tiktok",
-    href: "https://www.tiktok.com/@pixel.mole",
-    label: "@pixel.mole",
-    iconPath: BRAND_ICONS.tiktok,
-    brandColor: "#000000",
-    inkColor: "#ffffff",
-  },
-];
+//// Estúdio (nome + redes sociais) — vem do registro único `studio` no
+// Supabase (ver useStudio.ts/utils/studio.ts), nunca mais fixo aqui.
+// Compartilhado com HomeHero.vue e pages/links.vue: `load()` é seguro de
+// chamar de qualquer um dos três (só a primeira chamada busca de verdade).
+const { studio, load } = useStudio();
+onMounted(load);
+
+//// Redes sociais: resolução de ícone/cor por `platform` (jsonb →
+// visual) mora em utils/socials.ts, compartilhada com pages/links.vue —
+// nenhuma rede é hardcoded aqui, e uma rede nova cadastrada no banco
+// (qualquer `platform` que já exista em LINK_PLATFORMS, ou nenhum — cai no
+// ícone genérico) aparece sem precisar tocar neste componente.
+const socialVisuals = computed(() => resolveSocialVisuals(studio.value?.socials));
 
 function getIcon(name?: string): any {
   if (!name) return null;
@@ -54,7 +26,7 @@ function getIcon(name?: string): any {
 </script>
 
 <template>
-  <footer class="mt-16 border-t border-border-subtle bg-surface-alt sm:mt-24">
+  <footer class="mt-12 border-t border-border-subtle bg-surface-alt sm:mt-16">
     <Container>
       <div
         class="grid grid-cols-1 gap-10 py-10 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr] lg:gap-12 lg:py-14"
@@ -67,8 +39,14 @@ function getIcon(name?: string): any {
               alt="Pixel Mole Logo"
               class="h-10 w-auto object-contain"
             />
-            <span class="font-display text-lg font-bold text-content-primary">
-              Pixel Mole
+            <!-- Nome do estúdio: vem de `studio.name` (Supabase) — em
+                 branco por uma fração de segundo enquanto carrega, nunca um
+                 valor fixo no código (ver comentário no <script>). -->
+            <span
+              v-if="studio?.name"
+              class="font-display text-lg font-bold text-content-primary"
+            >
+              {{ studio.name }}
             </span>
           </NuxtLink>
           <p class="max-w-xs text-sm leading-relaxed text-content-secondary">
@@ -98,15 +76,27 @@ function getIcon(name?: string): any {
             >
               {{ t("navbar.members") }}
             </NuxtLink>
+            <!-- "/links" não entra na navbar principal (pedido explícito do
+                 usuário) — só aqui no Footer, junto dos demais links de
+                 navegação. -->
+            <NuxtLink
+              to="/links"
+              class="w-fit text-sm text-content-secondary transition-colors hover:text-content-primary"
+            >
+              {{ t("navbar.links") }}
+            </NuxtLink>
           </nav>
         </div>
 
-        <!-- Redes sociais -->
+        <!-- Redes sociais: uma entrada por item de `studio.socials`. Vazio
+             (ainda carregando, campo nulo, ou nenhuma rede cadastrada) só
+             deixa a fileira de ícones sem nada — o cabeçalho da coluna
+             continua aparecendo normalmente, nada quebra. -->
         <div class="flex flex-col gap-3">
           <h2 class="eyebrow">{{ t("footer.socialsHeading") }}</h2>
           <div class="flex flex-wrap gap-3">
             <a
-              v-for="social in socials"
+              v-for="social in socialVisuals"
               :key="social.key"
               :href="social.href"
               target="_blank"
@@ -128,7 +118,7 @@ function getIcon(name?: string): any {
               </svg>
               <component
                 v-else
-                :is="getIcon(social.icon)"
+                :is="getIcon(social.iconName)"
                 :size="20"
                 aria-hidden="true"
               />
@@ -140,7 +130,7 @@ function getIcon(name?: string): any {
       <div
         class="flex flex-col gap-2 border-t border-border-subtle py-6 text-xs text-content-faint sm:flex-row sm:items-center sm:justify-between"
       >
-        <p>© {{ year }} Pixel Mole. {{ t("footer.rights") }}</p>
+        <p v-if="studio?.name">© {{ year }} {{ studio.name }}. {{ t("footer.rights") }}</p>
       </div>
     </Container>
   </footer>

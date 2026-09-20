@@ -12,11 +12,12 @@ const props = defineProps<{
 }>();
 
 const { t } = useI18n();
+const { localize } = useLocalizedText();
 
-const hasOwnPage = computed(() => props.game.type.name === "coming_soon");
+const hasOwnPage = computed(() => props.game.type.slug === "coming_soon");
 const gameHref = computed(() =>
   hasOwnPage.value
-    ? `/game/${props.game.name.toLowerCase().replace(/\s+/g, "-")}`
+    ? `/game/${stableText(props.game.name).toLowerCase().replace(/\s+/g, "-")}`
     : undefined,
 );
 
@@ -30,11 +31,11 @@ function handleClick(e: Event) {
 </script>
 
 <template>
-  <section class="mt-16 sm:mt-24 lg:mt-28">
-    <div v-reveal class="mb-8 sm:mb-10">
+  <section class="mt-12 sm:mt-16 lg:mt-20">
+    <div v-reveal class="mb-6 sm:mb-8">
       <span class="eyebrow text-accent">{{ t("home.spotlight.eyebrow") }}</span>
       <h2
-        class="mt-2 font-display text-3xl font-bold tracking-tight text-content-primary sm:text-4xl"
+        class="mt-2 font-display text-2xl font-bold tracking-tight text-content-primary sm:text-3xl"
       >
         {{ t("home.spotlight.title") }}
       </h2>
@@ -42,13 +43,13 @@ function handleClick(e: Event) {
 
     <div
       v-reveal
-      class="grid grid-cols-1 gap-8 rounded-panel border border-border-subtle bg-surface-panel p-6 sm:p-8 lg:grid-cols-5 lg:gap-10 lg:p-10"
+      class="grid grid-cols-1 gap-6 rounded-panel border border-border-subtle bg-surface-panel p-5 sm:p-6 lg:grid-cols-5 lg:gap-8 lg:p-8"
     >
       <div class="lg:col-span-3">
         <GameGallery
           :banner="game.thumbnail"
           :screenshots="game.screenshots"
-          :alt="game.name"
+          :alt="localize(game.name)"
         />
       </div>
 
@@ -57,26 +58,26 @@ function handleClick(e: Event) {
           <Tag
             :name="game.type.name"
             :color="game.type.color"
-            kind="types"
             variant="outlined"
             size="lg"
+            format-slug
           />
           <Tag
             v-for="tag in game.tags"
-            :key="tag.name"
+            :key="tag.slug"
             :name="tag.name"
             :color="tag.color"
             :icon="tag.icon"
-            kind="tags"
+            format-slug
           />
         </div>
 
-        <h3 class="font-display text-2xl font-bold text-content-primary sm:text-3xl">
-          {{ game.name }}
+        <h3 class="font-display text-xl font-bold text-content-primary sm:text-2xl">
+          {{ localize(game.name) }}
         </h3>
 
         <p class="whitespace-pre-line leading-relaxed text-content-secondary">
-          {{ game.description }}
+          {{ localize(game.description) }}
         </p>
 
         <AppButton

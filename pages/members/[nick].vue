@@ -12,6 +12,7 @@ const route = useRoute();
 const nick = decodeURIComponent(route.params.nick as string);
 
 const { t } = useI18n();
+const { localize } = useLocalizedText();
 
 //// Supabase client and state
 const member = ref<Member | null>(null);
@@ -97,11 +98,16 @@ onMounted(async () => {
 // Resumo das atuações do membro nos jogos do estúdio: agrupa
 // member.games[].roleInGame, contando quantas vezes cada cargo se repete
 // (ex.: "Programador · 3x") em vez de listar cada jogo separadamente.
-// Ordenado do cargo mais recorrente pro menos recorrente.
+// Ordenado do cargo mais recorrente pro menos recorrente. Agrupamos pelo
+// texto já resolvido no idioma atual (localize()) — roleInGame pode vir
+// como objeto multilíngue (jsonb) ou string simples (campo ainda não
+// migrado), e objetos com o mesmo conteúdo têm referências diferentes, então
+// não dá pra usá-los direto como chave do Map.
 const roleSummary = computed(() => {
   const counts = new Map<string, number>();
   for (const game of member.value?.games ?? []) {
-    counts.set(game.roleInGame, (counts.get(game.roleInGame) ?? 0) + 1);
+    const roleText = localize(game.roleInGame);
+    counts.set(roleText, (counts.get(roleText) ?? 0) + 1);
   }
   return [...counts.entries()]
     .map(([role, count]) => ({ role, count }))
@@ -169,7 +175,6 @@ const roleSummary = computed(() => {
                 >
                   <Tag
                     :name="member.defaultRole"
-                    raw
                     color="var(--accent)"
                     variant="outlined"
                     size="lg"
@@ -219,7 +224,7 @@ const roleSummary = computed(() => {
               {{ $t("members.about") }}
             </h2>
             <p class="whitespace-pre-line leading-relaxed text-content-secondary">
-              {{ member.description }}
+              {{ localize(member.description) }}
             </p>
           </div>
 
@@ -239,7 +244,6 @@ const roleSummary = computed(() => {
                 v-for="entry in roleSummary"
                 :key="entry.role"
                 :name="`${entry.role} · ${entry.count}x`"
-                raw
                 color="var(--accent)"
                 variant="outlined"
                 icon="User"
@@ -261,7 +265,7 @@ const roleSummary = computed(() => {
           <CardContainer v-if="member.games.length" v-auto-animate>
             <Card
               v-for="game in member.games"
-              :key="game.name"
+              :key="game.id"
               :game="game"
               :role-label="game.roleInGame"
             />

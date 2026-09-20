@@ -12,13 +12,23 @@ const props = defineProps<{
 }>();
 
 const { t } = useI18n();
+const { localize } = useLocalizedText();
+
+// Nome do estúdio: vem do registro `studio` (Supabase), nunca fixo aqui —
+// compartilhado com AppFooter.vue via useStudio() (mesmo `load()` seguro de
+// chamar dos dois lugares, só a primeira busca de verdade). "Pixel Mole"
+// só entra como ÚLTIMO recurso, enquanto `studio` ainda carrega ou se a
+// linha ainda não existir no banco — nunca a fonte de verdade do nome.
+const { studio, load } = useStudio();
+onMounted(load);
+const studioName = computed(() => studio.value?.name || "Pixel Mole");
 
 // Mesma regra de Card.vue: jogos "coming_soon" têm página própria; os
 // outros tipos usam o GameModal reutilizável.
-const hasOwnPage = computed(() => props.game?.type.name === "coming_soon");
+const hasOwnPage = computed(() => props.game?.type.slug === "coming_soon");
 const gameHref = computed(() =>
   hasOwnPage.value
-    ? `/game/${props.game!.name.toLowerCase().replace(/\s+/g, "-")}`
+    ? `/game/${stableText(props.game!.name).toLowerCase().replace(/\s+/g, "-")}`
     : undefined,
 );
 
@@ -75,40 +85,44 @@ const primaryLink = computed(() => props.game?.links?.[0]);
     </div>
 
     <Container class="relative">
+      <!-- Altura deliberadamente baseada em `px`, nunca `vh`: a seção não
+           pode virar um "hero fullscreen" em nenhuma tela (regra explícita
+           pedida pelo usuário). Valores reduzidos de novo nesta rodada (era
+           min-h 460/560/640px + py-16/20/28) — a altura vem principalmente
+           do PRÓPRIO conteúdo (título + texto + botões), não de um mínimo
+           forçado; isso garante que o topo da próxima seção já apareça
+           insinuado na primeira dobra em qualquer tamanho de tela. -->
       <div
-        class="flex min-h-[460px] flex-col justify-end gap-6 py-16 sm:min-h-[560px] sm:py-20 lg:min-h-[640px] lg:py-28"
+        class="flex min-h-[300px] flex-col justify-end gap-4 py-8 sm:min-h-[340px] sm:py-10 lg:min-h-[380px] lg:py-12"
       >
-        <div v-reveal class="flex max-w-2xl flex-col gap-5">
-          <span class="eyebrow flex items-center gap-2 text-accent">
-            <img
-              src="/img/logo.png"
-              alt=""
-              class="h-5 w-5 object-contain"
-              aria-hidden="true"
-            />
-            {{ t("home.hero.eyebrow") }}
-          </span>
-
+        <!-- O eyebrow "Estúdio de jogos indie" que ficava aqui foi removido
+             por pedido explícito do usuário — a Home fica melhor começando
+             direto pelo título, sem essa apresentação. Nenhum substituto
+             foi colocado no lugar; o `flex-col gap-4` abaixo já se
+             reorganiza sozinho (não sobra vazio nenhum onde o eyebrow
+             estava, porque o layout nunca reservava um espaço fixo pra ele
+             — cada item só ocupa a altura do próprio conteúdo). -->
+        <div v-reveal class="flex max-w-2xl flex-col gap-4">
           <h1
-            class="font-display text-4xl font-bold leading-[1.05] tracking-tight text-content-primary sm:text-5xl lg:text-6xl"
+            class="font-display text-2xl font-bold leading-[1.05] tracking-tight text-content-primary sm:text-3xl lg:text-4xl"
           >
-            {{ game ? game.name : "Pixel Mole" }}
+            {{ game ? localize(game.name) : studioName }}
           </h1>
 
           <Tag
             v-if="game"
             :name="game.type.name"
             :color="game.type.color"
-            kind="types"
             variant="outlined"
             size="lg"
+            format-slug
             class="w-fit"
           />
 
           <p
             class="max-w-xl text-base leading-relaxed text-content-secondary sm:text-lg"
           >
-            {{ game ? game.description : t("home.hero.fallback") }}
+            {{ game ? localize(game.description) : t("home.hero.fallback") }}
           </p>
 
           <div class="mt-2 flex flex-wrap items-center gap-4">

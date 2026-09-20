@@ -5,6 +5,8 @@ import type { Game, Tag, Type } from "@/types/game";
 import Card from "~/components/Card.vue";
 import { createClient } from "@supabase/supabase-js";
 
+const { localize } = useLocalizedText();
+
 //// Supabase client and state
 const allTypes = ref<Type[]>([]);
 const allTags = ref<Tag[]>([]);
@@ -28,22 +30,24 @@ const selectedTags = ref<string[]>([]);
 
 const filteredGames = computed((): Game[] => {
   return allGames.value.filter((game) => {
-    const matchesName = game.name
+    const matchesName = localize(game.name)
       .toLowerCase()
       .includes(searchQuery.value.toLowerCase());
 
-    const matchesDescription = game.description
+    const matchesDescription = localize(game.description)
       .toLowerCase()
       .includes(searchQuery.value.toLowerCase());
 
+    // `selectedStatus`/`selectedTags` guardam SLUGS (estáveis, nunca
+    // traduzidos) — nunca o `name` multilíngue. Ver types/game.ts.
     const matchesStatus =
       selectedStatus.value === "all_games" ||
-      game.type.name === selectedStatus.value.toLowerCase();
+      game.type.slug === selectedStatus.value.toLowerCase();
 
     const matchesTag =
       selectedTags.value.length === 0 ||
       selectedTags.value.every((selected) =>
-        game.tags.some((tag) => tag.name === selected),
+        game.tags.some((tag) => tag.slug === selected),
       );
 
     return (matchesName || matchesDescription) && matchesStatus && matchesTag;
@@ -59,7 +63,9 @@ async function getAllTypes(): Promise<void> {
 
   if (error) console.error("[Supabase] Erro ao buscar game_types:", error);
 
-  allTypes.value = (data as Type[]) ?? [];
+  allTypes.value = (data ?? [])
+    .map(normalizeType)
+    .filter(Boolean) as Type[];
 }
 
 async function getAllTags(): Promise<void> {
@@ -67,7 +73,7 @@ async function getAllTags(): Promise<void> {
 
   if (error) console.error("[Supabase] Erro ao buscar tags:", error);
 
-  allTags.value = (data as Tag[]) ?? [];
+  allTags.value = (data ?? []).map(normalizeTag).filter(Boolean) as Tag[];
 }
 
 // Query/mapeamento completos vivem em fetchAllGames (utils/games.ts) —
@@ -121,8 +127,7 @@ onMounted(async () => {
           <div class="flex gap-3">
             <Select
               v-model="selectedStatus"
-              :options="allTypes.map((type) => type.name)"
-              kind="types"
+              :options="allTypes"
               class="min-w-0 flex-1 sm:flex-initial"
             />
 
@@ -147,18 +152,18 @@ onMounted(async () => {
               @click="selectedTags = selectedTags.filter((t) => t !== tag)"
             >
               <Tag
-                :name="allTags.find((o) => o.name === tag)?.name || ''"
-                :color="allTags.find((o) => o.name === tag)?.color || ''"
-                :icon="allTags.find((o) => o.name === tag)?.icon || ''"
-                kind="tags"
+                :name="allTags.find((o) => o.slug === tag)?.name || ''"
+                :color="allTags.find((o) => o.slug === tag)?.color || ''"
+                :icon="allTags.find((o) => o.slug === tag)?.icon || ''"
                 removable
+                format-slug
               />
             </span>
           </div>
         </div>
 
         <CardContainer v-auto-animate>
-          <Card v-for="game in filteredGames" :key="game.name" :game="game" />
+          <Card v-for="game in filteredGames" :key="game.id" :game="game" />
         </CardContainer>
       </template>
     </main>

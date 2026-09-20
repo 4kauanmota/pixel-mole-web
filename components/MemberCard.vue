@@ -80,9 +80,9 @@ const nameFits = computed(
           <div v-if="member.defaultRole" class="mt-2 flex flex-wrap gap-1.5">
             <Tag
               :name="member.defaultRole"
-              raw
               color="var(--accent)"
               variant="outlined"
+              wrap
               class="max-w-full"
             />
           </div>

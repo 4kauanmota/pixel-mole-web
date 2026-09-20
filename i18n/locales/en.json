@@ -3,13 +3,16 @@
     "home": "Home",
     "games": "Games",
     "members": "Team",
+    "links": "Links",
     "enableLight": "Enable light mode",
     "enableDark": "Enable dark mode"
   },
   "loading": {
     "games": "Loading games...",
     "members": "Loading team...",
-    "member": "Loading member..."
+    "member": "Loading member...",
+    "home": "Loading home page...",
+    "links": "Loading links..."
   },
   "filters": {
     "searchPlaceholder": "Search games...",
@@ -53,7 +56,6 @@
   },
   "home": {
     "hero": {
-      "eyebrow": "Indie game studio",
       "ctaPrimary": "Learn more",
       "ctaPlatform": "Play now",
       "fallback": "News about our next games coming soon."
@@ -86,5 +88,14 @@
       "title": "The people behind Pixel Mole",
       "viewAll": "Meet our team"
     }
+  },
+  "links": {
+    "site": "Official site",
+    "siteDescription": "Get to know the studio",
+    "games": "Games",
+    "gamesDescription": "Browse our full catalog",
+    "members": "Team",
+    "membersDescription": "Meet the people behind it",
+    "socialsHeading": "Social links"
   }
 }

@@ -51,8 +51,23 @@ const links = [
 </script>
 
 <template>
+  <!-- z-[60]: precisa ficar ACIMA de qualquer card (Card.vue/MemberCard.vue
+       usam z-50 — necessário pra eles escaparem do overlay de blur da busca
+       em /games, que é z-40). Como a navbar é `sticky` e os cards vivem
+       dentro de um grid (que também cria stacking context via z-index em
+       item de grid, mesmo sem `position` explícito), um EMPATE em z-50
+       entre os dois é resolvido pela ordem no DOM — e os cards, vindo
+       depois da navbar, venciam esse empate visualmente. Não é um caso de
+       "aumentar z-index até resolver": a navbar precisa continuar acima de
+       QUALQUER conteúdo de página por definição (é o chrome fixo do site),
+       então ganha uma camada própria, só abaixo do GameModal (z-[100],
+       que precisa cobrir até a navbar quando aberto). Os z-index internos
+       da navbar (dropdown de idioma, z-50/z-10 abaixo) não precisam mudar:
+       já vivem dentro do stacking context PRÓPRIO que esta `<nav>` cria (ela
+       já tem `position` + `z-index` explícitos), então só competem entre si,
+       nunca contra conteúdo de fora dela. -->
   <nav
-    class="sticky top-0 z-50 flex h-20 items-center justify-between border-b border-border-subtle bg-surface-page/85 px-4 backdrop-blur-md sm:h-24 sm:px-6 lg:px-8"
+    class="sticky top-0 z-[60] flex h-20 items-center justify-between border-b border-border-subtle bg-surface-page/85 px-4 backdrop-blur-md sm:h-24 sm:px-6 lg:px-8"
   >
     <NuxtLink to="/" class="flex h-full items-center gap-2 py-3 sm:py-4">
       <img

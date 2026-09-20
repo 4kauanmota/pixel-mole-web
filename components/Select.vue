@@ -1,17 +1,20 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue";
 import * as icons from "lucide-vue-next";
+import type { LocalizedText } from "~/types/i18n";
 
 const props = defineProps<{
+  // `modelValue` e a identidade de cada opção agora são o SLUG (estável,
+  // nunca traduzido) — nunca o `name` (que pode ser multilíngue). `name` só
+  // é usado pra exibição, via useLocalizedText(). Aceita qualquer objeto
+  // com esse formato (Type[] e Tag[] batem os dois), então este componente
+  // não precisa saber se está listando tipos, tags ou qualquer outra coisa.
   modelValue: string;
-  options: string[];
-  // Namespace de tradução usado pra exibir cada opção (ver useCatalogLabel)
-  // — "types" pro filtro de status de jogo, que é o único uso hoje.
-  kind?: "tags" | "types";
+  options: { slug: string; name: LocalizedText | string }[];
 }>();
 const emit = defineEmits(["update:modelValue"]);
 
-const { label } = useCatalogLabel();
+const { localize } = useLocalizedText();
 const open = ref(false);
 const container = ref<HTMLElement>();
 
@@ -51,7 +54,7 @@ function select(value: string) {
                fonte; sem isso, o "overflow-hidden" do truncate corta o
                rabinho de letras com descendente (ex.: o "g" de "games"). -->
           <span class="truncate leading-6">{{
-            label(kind ?? "types", options.find((o) => o === modelValue) as string)
+            toLabel(localize(options.find((o) => o.slug === modelValue)?.name ?? ""))
           }}</span>
           <component
             :is="icons['ChevronDown']"
@@ -70,23 +73,23 @@ function select(value: string) {
       >
         <div
           v-for="option in options"
-          :key="option"
+          :key="option.slug"
           class="flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors"
           :class="
-            modelValue === option
+            modelValue === option.slug
               ? 'bg-pm-yellow hover:opacity-90'
               : 'hover:bg-surface-hover'
           "
-          @click="select(option)"
+          @click="select(option.slug)"
         >
           <span
             :class="
-              modelValue === option
+              modelValue === option.slug
                 ? 'text-pm-dark font-medium'
                 : 'text-content-primary'
             "
           >
-            {{ label(kind ?? "types", option) }}
+            {{ toLabel(localize(option.name)) }}
           </span>
         </div>
       </div>

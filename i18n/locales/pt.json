@@ -3,13 +3,16 @@
     "home": "Início",
     "games": "Jogos",
     "members": "Equipe",
+    "links": "Links",
     "enableLight": "Ativar modo claro",
     "enableDark": "Ativar modo escuro"
   },
   "loading": {
     "games": "Carregando jogos...",
     "members": "Carregando equipe...",
-    "member": "Carregando membro..."
+    "member": "Carregando membro...",
+    "home": "Carregando página inicial...",
+    "links": "Carregando links..."
   },
   "filters": {
     "searchPlaceholder": "Buscar jogos...",
@@ -23,7 +26,7 @@
   },
   "members": {
     "title": "Equipe do Estúdio",
-    "intro": "As pessoas por trás dos jogos da Pixel Mole.",
+    "intro": "As pessoas por trás dos jogos do Pixel Mole.",
     "count": "{count} membros na equipe",
     "about": "Sobre",
     "socials": "Redes sociais",
@@ -53,7 +56,6 @@
   },
   "home": {
     "hero": {
-      "eyebrow": "Estúdio de jogos indie",
       "ctaPrimary": "Saiba mais",
       "ctaPlatform": "Jogar agora",
       "fallback": "Novidades sobre nossos próximos jogos em breve."
@@ -77,14 +79,23 @@
     "studio": {
       "eyebrow": "Quem somos",
       "title": "Uma equipe, muitos mundos",
-      "description": "Da ideia ao pixel final, cada jogo da Pixel Mole nasce de um time pequeno dedicado a criar experiências com identidade própria.",
+      "description": "Da ideia ao pixel final, cada jogo do Pixel Mole nasce de um time pequeno dedicado a criar experiências com identidade própria.",
       "statGames": "Jogos em desenvolvimento",
       "statTeam": "Pessoas na equipe"
     },
     "team": {
       "eyebrow": "Bastidores",
-      "title": "Quem faz a Pixel Mole",
+      "title": "Quem faz o Pixel Mole",
       "viewAll": "Conheça nossos membros"
     }
+  },
+  "links": {
+    "site": "Site oficial",
+    "siteDescription": "Conheça o estúdio completo",
+    "games": "Jogos",
+    "gamesDescription": "Veja todo o nosso catálogo",
+    "members": "Equipe",
+    "membersDescription": "Conheça o nosso time",
+    "socialsHeading": "Redes sociais"
   }
 }

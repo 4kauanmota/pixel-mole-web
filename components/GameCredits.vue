@@ -15,23 +15,28 @@ const props = defineProps<{
   members?: GameMember[] | null;
 }>();
 
+const { localize } = useLocalizedText();
+
 const membersList = computed(() => props.members ?? []);
 
 //// Agrupamento por função (role_in_game): dinâmico, na ordem em que os
 // membros chegam da API — nenhuma função é assumida/fixa de antemão, só as
-// que realmente existirem nos dados desse jogo. role_in_game é texto livre
-// digitado por humanos (mesmo motivo da prop `raw` em Tag.vue), então nunca
-// passa por toLabel() aqui.
+// que realmente existirem nos dados desse jogo. role_in_game agora pode vir
+// como texto multilíngue (jsonb) OU string simples (campo ainda não
+// migrado) — agrupamos pelo texto já resolvido no idioma atual (via
+// localize()), não pelo valor bruto, senão dois objetos com o mesmo
+// conteúdo (mas referências diferentes) virariam grupos separados.
 const groupedMembers = computed(() => {
   const groups: { role: string; members: GameMember[] }[] = [];
   const byRole = new Map<string, GameMember[]>();
 
   for (const member of membersList.value) {
-    let list = byRole.get(member.roleInGame);
+    const roleText = localize(member.roleInGame);
+    let list = byRole.get(roleText);
     if (!list) {
       list = [];
-      byRole.set(member.roleInGame, list);
-      groups.push({ role: member.roleInGame, members: list });
+      byRole.set(roleText, list);
+      groups.push({ role: roleText, members: list });
     }
     list.push(member);
   }

@@ -17,6 +17,7 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+const { localize } = useLocalizedText();
 
 function close() {
   emit("update:open", false);
@@ -75,7 +76,7 @@ const hasInfo = computed(
             class="relative mx-auto w-full max-w-[1400px] rounded-panel border border-border bg-surface-card shadow-2xl"
             role="dialog"
             aria-modal="true"
-            :aria-label="game.name"
+            :aria-label="localize(game.name)"
           >
             <!-- Brilho ambiente sutil, reforça a sensação de profundidade -->
             <div
@@ -99,15 +100,15 @@ const hasInfo = computed(
                 <Tag
                   :name="game.type.name"
                   :color="game.type.color"
-                  kind="types"
                   variant="outlined"
                   size="lg"
+                  format-slug
                   class="mb-3 inline-flex"
                 />
                 <h2
                   class="max-w-3xl break-words text-3xl font-bold text-content-primary sm:text-4xl"
                 >
-                  {{ game.name }}
+                  {{ localize(game.name) }}
                 </h2>
               </div>
 
@@ -118,7 +119,7 @@ const hasInfo = computed(
                     v-if="hasGallery"
                     :banner="game.thumbnail"
                     :screenshots="game.screenshots"
-                    :alt="game.name"
+                    :alt="localize(game.name)"
                   />
                 </div>
 
@@ -131,12 +132,12 @@ const hasInfo = computed(
                     <div class="flex flex-wrap gap-2.5">
                       <Tag
                         v-for="tag in game.tags"
-                        :key="tag.name"
+                        :key="tag.slug"
                         :name="tag.name"
                         :color="tag.color"
                         :icon="tag.icon"
-                        kind="tags"
                         size="lg"
+                        format-slug
                       />
                     </div>
                   </div>
@@ -146,7 +147,7 @@ const hasInfo = computed(
                     <p
                       class="whitespace-pre-line leading-relaxed text-content-secondary"
                     >
-                      {{ game.description }}
+                      {{ localize(game.description) }}
                     </p>
                   </div>
 

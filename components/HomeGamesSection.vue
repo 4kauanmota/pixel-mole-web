@@ -16,15 +16,15 @@ const { t } = useI18n();
 </script>
 
 <template>
-  <section class="mt-16 sm:mt-24 lg:mt-28">
+  <section class="mt-12 sm:mt-16 lg:mt-20">
     <div
       v-reveal
-      class="mb-8 flex flex-wrap items-end justify-between gap-4 sm:mb-10"
+      class="mb-6 flex flex-wrap items-end justify-between gap-4 sm:mb-8"
     >
       <div>
         <span class="eyebrow text-accent">{{ t("home.games.eyebrow") }}</span>
         <h2
-          class="mt-2 font-display text-3xl font-bold tracking-tight text-content-primary sm:text-4xl"
+          class="mt-2 font-display text-2xl font-bold tracking-tight text-content-primary sm:text-3xl"
         >
           {{ t("home.games.title") }}
         </h2>
@@ -41,7 +41,7 @@ const { t } = useI18n();
          prende o z-index dos cards, quebrando a exclusão deles do blur de
          busca/filtros da página /games (bug já resolvido, ver Card.vue). -->
     <CardContainer v-if="games.length" v-auto-animate>
-      <Card v-for="game in games" :key="game.name" :game="game" />
+      <Card v-for="game in games" :key="game.id" :game="game" />
     </CardContainer>
 
     <p v-else class="text-content-muted">{{ t("home.games.empty") }}</p>
